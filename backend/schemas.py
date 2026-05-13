@@ -86,6 +86,13 @@ class UserRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class OwnerRead(BaseModel):
+    id: int
+    username: str
+
+    model_config = {"from_attributes": True}
+
+
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -119,9 +126,21 @@ class DeviceCreate(BaseModel):
 
 
 class DeviceUpdate(BaseModel):
+    serial_number: Optional[str] = None
+    model_name: Optional[str] = None
+    generation: Optional[str] = None
+    category_id: Optional[int] = None
+    entity_id: Optional[int] = None
+    order_number: Optional[str] = None
     location_id: Optional[int] = None
     client_id: Optional[int] = None
     owner_id: Optional[int] = None
+    is_pv: Optional[bool] = None
+    cpu: Optional[str] = None
+    ram_gb: Optional[int] = None
+    storage_gb: Optional[int] = None
+    screen_size: Optional[str] = None
+    power_w: Optional[int] = None
     comment: Optional[str] = None
     is_archived: Optional[bool] = None
 
@@ -158,7 +177,7 @@ class DeviceRead(BaseModel):
     model_config = {"from_attributes": True}
 
     @classmethod
-    def from_orm_device(cls, device) -> "DeviceRead":
+    def from_device(cls, device) -> "DeviceRead":
         return cls(
             id=device.id,
             serial_number=device.serial_number,
@@ -208,7 +227,7 @@ class DeviceHistoryRead(BaseModel):
     model_config = {"from_attributes": True}
 
     @classmethod
-    def from_orm_history(cls, entry) -> "DeviceHistoryRead":
+    def from_history(cls, entry) -> "DeviceHistoryRead":
         return cls(
             id=entry.id,
             device_id=entry.device_id,
@@ -240,3 +259,23 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     user_id: int
     role: str
+
+
+# ---------------------------------------------------------------------------
+# Stats
+# ---------------------------------------------------------------------------
+
+
+class StatCount(BaseModel):
+    id: int
+    name: str
+    count: int
+
+
+class StatsSummary(BaseModel):
+    total_devices: int
+    active_devices: int
+    archived_devices: int
+    by_category: list[StatCount]
+    by_location: list[StatCount]
+    by_entity: list[StatCount]

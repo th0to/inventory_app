@@ -6,6 +6,9 @@ from fastapi import FastAPI
 from database import Base, engine
 import models  # noqa: F401
 from routers.auth import router as auth_router
+from routers.devices import router as devices_router
+from routers.references import router as references_router
+from routers.stats import router as stats_router
 
 
 @asynccontextmanager
@@ -17,6 +20,9 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Inventory API", lifespan=lifespan)
 
 app.include_router(auth_router)
+app.include_router(references_router)
+app.include_router(devices_router)
+app.include_router(stats_router)
 
 
 @app.get("/health", tags=["system"])
