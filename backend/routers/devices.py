@@ -76,7 +76,7 @@ def _validate_relations(db: Session, payload: dict, *, is_update: bool) -> None:
     if not is_update or "owner_id" in payload:
         owner_id = payload.get("owner_id")
         if owner_id is not None:
-            _assert_exists(db, User, owner_id, "Owner introuvable")
+            _assert_exists(db, User, owner_id, "Propriétaire introuvable")
 
     if "client_id" in payload and payload["client_id"] is not None:
         _assert_exists(db, Client, payload["client_id"], "Client introuvable")
@@ -174,13 +174,9 @@ def update_device(
         has_changes = True
 
     if not has_changes:
-        _create_history_entry(
-            db=db,
-            device_id=device.id,
-            user_id=current_user.id,
-            field_changed="update",
-            old_value="Aucun changement",
-            new_value="Requête PUT sans modification",
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Aucun changement détecté",
         )
 
     device.updated_by = current_user.id
