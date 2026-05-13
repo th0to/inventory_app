@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
@@ -49,15 +51,17 @@ def _create_history_entry(
     )
 
 
-def _assert_exists(db: Session, model, value: int, error_message: str) -> None:
-    if db.get(model, value) is None:
+def _assert_exists(db: Session, model, record_id: int, error_message: str) -> None:
+    if db.get(model, record_id) is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=error_message,
         )
 
 
-def _validate_relations(db: Session, payload: dict, *, is_update: bool) -> None:
+def _validate_relations(
+    db: Session, payload: dict[str, Any], *, is_update: bool
+) -> None:
     if not is_update or "category_id" in payload:
         category_id = payload.get("category_id")
         if category_id is not None:
@@ -99,7 +103,10 @@ def get_device(
 ) -> DeviceRead:
     device = _fetch_device(db, device_id)
     if device is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device introuvable")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Appareil introuvable",
+        )
     return DeviceRead.from_device(device)
 
 
@@ -131,7 +138,7 @@ def create_device(
     if created_device is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la création du device",
+            detail="Erreur lors de la création de l'appareil",
         )
     return DeviceRead.from_device(created_device)
 
@@ -145,7 +152,10 @@ def update_device(
 ) -> DeviceRead:
     device = _fetch_device(db, device_id)
     if device is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device introuvable")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Appareil introuvable",
+        )
 
     update_data = payload.model_dump(exclude_unset=True)
     if not update_data:
@@ -186,7 +196,7 @@ def update_device(
     if updated_device is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la mise à jour du device",
+            detail="Erreur lors de la mise à jour de l'appareil",
         )
     return DeviceRead.from_device(updated_device)
 
@@ -199,7 +209,10 @@ def delete_device(
 ) -> Response:
     device = db.get(Device, device_id)
     if device is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device introuvable")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Appareil introuvable",
+        )
 
     db.delete(device)
     db.commit()
