@@ -82,8 +82,10 @@ def _validate_relations(
         if owner_id is not None:
             _assert_exists(db, User, owner_id, "Propriétaire introuvable")
 
-    if "client_id" in payload and payload["client_id"] is not None:
-        _assert_exists(db, Client, payload["client_id"], "Client introuvable")
+    if not is_update or "client_id" in payload:
+        client_id = payload.get("client_id")
+        if client_id is not None:
+            _assert_exists(db, Client, client_id, "Client introuvable")
 
 
 @router.get("", response_model=list[DeviceRead])
@@ -135,12 +137,7 @@ def create_device(
     db.commit()
 
     created_device = _fetch_device(db, device.id)
-    if created_device is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la création de l'appareil",
-        )
-    return DeviceRead.from_device(created_device)
+    return DeviceRead.from_device(created_device if created_device else device)
 
 
 @router.put("/{device_id}", response_model=DeviceRead)
@@ -193,12 +190,7 @@ def update_device(
     db.commit()
 
     updated_device = _fetch_device(db, device.id)
-    if updated_device is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la mise à jour de l'appareil",
-        )
-    return DeviceRead.from_device(updated_device)
+    return DeviceRead.from_device(updated_device if updated_device else device)
 
 
 @router.delete("/{device_id}", status_code=status.HTTP_204_NO_CONTENT)
