@@ -88,7 +88,7 @@ def list_devices(
     db: Session = Depends(get_db),
 ) -> list[DeviceRead]:
     devices = db.scalars(_device_query().order_by(Device.id.asc())).all()
-    return [DeviceRead.from_orm_device(device) for device in devices]
+    return [DeviceRead.from_device(device) for device in devices]
 
 
 @router.get("/{device_id}", response_model=DeviceRead)
@@ -100,7 +100,7 @@ def get_device(
     device = _fetch_device(db, device_id)
     if device is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device introuvable")
-    return DeviceRead.from_orm_device(device)
+    return DeviceRead.from_device(device)
 
 
 @router.post("", response_model=DeviceRead, status_code=status.HTTP_201_CREATED)
@@ -133,7 +133,7 @@ def create_device(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erreur lors de la création du device",
         )
-    return DeviceRead.from_orm_device(created_device)
+    return DeviceRead.from_device(created_device)
 
 
 @router.put("/{device_id}", response_model=DeviceRead)
@@ -188,7 +188,7 @@ def update_device(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erreur lors de la mise à jour du device",
         )
-    return DeviceRead.from_orm_device(updated_device)
+    return DeviceRead.from_device(updated_device)
 
 
 @router.delete("/{device_id}", status_code=status.HTTP_204_NO_CONTENT)

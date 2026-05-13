@@ -177,7 +177,7 @@ class DeviceRead(BaseModel):
     model_config = {"from_attributes": True}
 
     @classmethod
-    def from_orm_device(cls, device) -> "DeviceRead":
+    def from_device(cls, device) -> "DeviceRead":
         return cls(
             id=device.id,
             serial_number=device.serial_number,
@@ -227,7 +227,7 @@ class DeviceHistoryRead(BaseModel):
     model_config = {"from_attributes": True}
 
     @classmethod
-    def from_orm_history(cls, entry) -> "DeviceHistoryRead":
+    def from_history(cls, entry) -> "DeviceHistoryRead":
         return cls(
             id=entry.id,
             device_id=entry.device_id,
