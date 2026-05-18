@@ -31,6 +31,10 @@ function clearStoredToken() {
   }
 }
 
+function isTokenExpired(payload: JwtPayload) {
+  return Boolean(payload.exp && payload.exp * 1000 <= Date.now())
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => readStoredToken())
 
@@ -49,7 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = Boolean(token && payload)
 
   const login = useCallback((nextToken: string) => {
-    decodeJwtPayload(nextToken)
+    const decodedPayload = decodeJwtPayload(nextToken)
+
+    if (isTokenExpired(decodedPayload)) {
+      throw new Error('Token JWT expiré')
+    }
 
     if (typeof window !== 'undefined') {
       localStorage.setItem(TOKEN_STORAGE_KEY, nextToken)
