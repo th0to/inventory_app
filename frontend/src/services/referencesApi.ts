@@ -1,12 +1,8 @@
+import { createAuthHeaders } from './apiAuth'
+
 export interface NamedReference {
   id: number
   name: string
-}
-
-function createAuthHeaders(token: string): HeadersInit {
-  return {
-    Authorization: `Bearer ${token}`,
-  }
 }
 
 async function fetchNamedReferences(token: string, endpoint: string): Promise<NamedReference[]> {

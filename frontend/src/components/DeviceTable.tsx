@@ -17,7 +17,7 @@ export default function DeviceTable({ devices, isAdmin }: DeviceTableProps) {
             <th>Catégorie</th>
             <th>Entité</th>
             <th>Lieu</th>
-            <th>Owner</th>
+            <th>Propriétaire</th>
             {isAdmin ? <th>Actions</th> : null}
           </tr>
         </thead>
@@ -41,10 +41,20 @@ export default function DeviceTable({ devices, isAdmin }: DeviceTableProps) {
                 {isAdmin ? (
                   <td>
                     <div className="inventory-table__actions">
-                      <button type="button" disabled>
+                      <button
+                        type="button"
+                        disabled
+                        title="Fonctionnalité bientôt disponible"
+                        aria-label="Modifier (fonctionnalité bientôt disponible)"
+                      >
                         Modifier
                       </button>
-                      <button type="button" disabled>
+                      <button
+                        type="button"
+                        disabled
+                        title="Fonctionnalité bientôt disponible"
+                        aria-label="Supprimer (fonctionnalité bientôt disponible)"
+                      >
                         Supprimer
                       </button>
                     </div>

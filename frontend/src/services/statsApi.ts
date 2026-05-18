@@ -1,3 +1,5 @@
+import { createAuthHeaders } from './apiAuth'
+
 export interface StatCount {
   id: number
   name: string
@@ -11,12 +13,6 @@ export interface StatsSummary {
   by_category: StatCount[]
   by_location: StatCount[]
   by_entity: StatCount[]
-}
-
-function createAuthHeaders(token: string): HeadersInit {
-  return {
-    Authorization: `Bearer ${token}`,
-  }
 }
 
 export async function fetchStatsSummary(token: string): Promise<StatsSummary> {

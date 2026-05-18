@@ -1,3 +1,5 @@
+import { createAuthHeaders } from './apiAuth'
+
 export interface Device {
   id: number
   serial_number: string
@@ -26,12 +28,6 @@ export interface Device {
   updated_by: number | null
   created_at: string
   updated_at: string
-}
-
-function createAuthHeaders(token: string): HeadersInit {
-  return {
-    Authorization: `Bearer ${token}`,
-  }
 }
 
 export async function fetchDevices(token: string): Promise<Device[]> {
