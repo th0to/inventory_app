@@ -9,6 +9,7 @@ if (!base) {
   console.error("TARGET_DIR manquant.");
   process.exit(1);
 }
+const baseDir = path.resolve(base);
 
 const typeByExt = {
   ".html": "text/html; charset=utf-8",
@@ -26,13 +27,13 @@ const typeByExt = {
 http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-    let filePath = path.join(base, urlPath.replace(/^\//, ""));
+    let filePath = path.resolve(baseDir, urlPath.replace(/^\//, ""));
 
     if (urlPath === "/" || urlPath.endsWith("/")) {
-      filePath = path.join(base, urlPath.replace(/^\//, ""), "index.html");
+      filePath = path.resolve(baseDir, urlPath.replace(/^\//, ""), "index.html");
     }
 
-    if (!filePath.startsWith(base)) {
+    if (filePath !== baseDir && !filePath.startsWith(`${baseDir}${path.sep}`)) {
       res.writeHead(403);
       res.end("Forbidden");
       return;
@@ -40,7 +41,7 @@ http
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
-        fs.readFile(path.join(base, "index.html"), (fallbackErr, fallbackData) => {
+        fs.readFile(path.resolve(baseDir, "index.html"), (fallbackErr, fallbackData) => {
           if (fallbackErr) {
             res.writeHead(404);
             res.end("Not found");
