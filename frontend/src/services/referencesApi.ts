@@ -10,8 +10,9 @@ interface OwnerReference {
   username: string
 }
 
-function normalizeResponseError(response: Response, genericMessage: string): Error | null {
+function createResponseError(response: Response, genericMessage: string): Error | null {
   if (response.status === 404) {
+    // Fallback intentionally supports both legacy `/api/ref/*` and current `/api/references/*`.
     return null
   }
 
@@ -41,7 +42,7 @@ async function fetchReferencesPayload<T>(
       return (await response.json()) as T
     }
 
-    const normalizedError = normalizeResponseError(response, genericMessage)
+    const normalizedError = createResponseError(response, genericMessage)
     if (normalizedError) {
       throw normalizedError
     }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { DeviceCreatePayload } from '../services/devicesApi'
 import type { NamedReference } from '../services/referencesApi'
 
@@ -74,7 +74,7 @@ export default function DeviceForm({
   const [values, setValues] = useState<DeviceFormValues>(INITIAL_VALUES)
   const [errors, setErrors] = useState<FormErrors>({})
 
-  const isDisabled = useMemo(() => isSubmitting || !canSubmit, [canSubmit, isSubmitting])
+  const isDisabled = isSubmitting || !canSubmit
 
   const updateValue = (key: keyof DeviceFormValues, value: string) => {
     setValues((previous) => ({ ...previous, [key]: value }))
@@ -99,23 +99,27 @@ export default function DeviceForm({
       return
     }
 
-    await onSubmit({
-      serial_number: values.serialNumber.trim(),
-      model_name: values.modelName.trim(),
-      category_id: Number(values.categoryId),
-      entity_id: Number(values.entityId),
-      location_id: Number(values.locationId),
-      owner_id: Number(values.ownerId),
-    })
+    try {
+      await onSubmit({
+        serial_number: values.serialNumber.trim(),
+        model_name: values.modelName.trim(),
+        category_id: Number(values.categoryId),
+        entity_id: Number(values.entityId),
+        location_id: Number(values.locationId),
+        owner_id: Number(values.ownerId),
+      })
 
-    setValues(INITIAL_VALUES)
-    setErrors({})
+      setValues(INITIAL_VALUES)
+      setErrors({})
+    } catch {
+      return
+    }
   }
 
   return (
     <form className="add-device-form" onSubmit={handleSubmit} noValidate>
       <label>
-        Serial Number *
+        Numéro de série *
         <input
           type="text"
           value={values.serialNumber}
@@ -224,7 +228,7 @@ export default function DeviceForm({
 
       <div className="add-device-form__actions">
         <button type="submit" disabled={isDisabled}>
-          {isSubmitting ? 'Création…' : 'Créer l’appareil'}
+          {isSubmitting ? 'Création...' : 'Créer l’appareil'}
         </button>
       </div>
     </form>
