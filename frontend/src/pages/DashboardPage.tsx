@@ -18,14 +18,33 @@ import { useAuth } from '../context/useAuth'
 import { fetchStatsSummary, type StatCount, type StatsSummary } from '../services/statsApi'
 import './dashboard.css'
 
-const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A855F7', '#22C55E']
+const PIE_COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#A855F7',
+  '#22C55E',
+  '#EF4444',
+  '#0EA5E9',
+  '#14B8A6',
+  '#F97316',
+]
 
-function countByLocationName(stats: StatCount[], locationName: string): number {
-  const normalizedTarget = locationName.trim().toLowerCase()
+const LOCATION_KEYWORDS = {
+  stock: ['stock'],
+  client: ['client'],
+} as const
 
-  const matched = stats.find((item) => item.name.trim().toLowerCase() === normalizedTarget)
+function countByLocationKeywords(stats: StatCount[], keywords: string[]): number {
+  const normalizedKeywords = keywords.map((keyword) => keyword.trim().toLowerCase())
 
-  return matched?.count ?? 0
+  return stats.reduce((total, item) => {
+    const normalizedName = item.name.trim().toLowerCase()
+    const matchesKeyword = normalizedKeywords.some((keyword) => normalizedName.includes(keyword))
+
+    return matchesKeyword ? total + item.count : total
+  }, 0)
 }
 
 export default function DashboardPage() {
@@ -53,9 +72,13 @@ export default function DashboardPage() {
           setStats(data)
           setError(null)
         }
-      } catch {
+      } catch (err) {
         if (!isCancelled) {
-          setError('Impossible de charger les statistiques du dashboard.')
+          setError(
+            err instanceof Error
+              ? err.message
+              : 'Impossible de charger les statistiques du dashboard.',
+          )
         }
       } finally {
         if (!isCancelled) {
@@ -79,8 +102,14 @@ export default function DashboardPage() {
     return [
       { label: 'Total', value: stats.total_devices },
       { label: 'Actifs', value: stats.active_devices },
-      { label: 'En stock', value: countByLocationName(stats.by_location, 'Stock') },
-      { label: 'Chez client', value: countByLocationName(stats.by_location, 'Client') },
+      {
+        label: 'En stock',
+        value: countByLocationKeywords(stats.by_location, [...LOCATION_KEYWORDS.stock]),
+      },
+      {
+        label: 'Chez client',
+        value: countByLocationKeywords(stats.by_location, [...LOCATION_KEYWORDS.client]),
+      },
       { label: 'Archivés', value: stats.archived_devices },
     ]
   }, [stats])
