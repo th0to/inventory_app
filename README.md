@@ -19,7 +19,7 @@ Application de gestion des stocks de materiel d'exposition
 5. Accès local :
    - Frontend (via Nginx) : `http://localhost`
    - API backend (via Nginx) : `http://localhost/api/...`
-   - Healthcheck backend : `http://localhost/api/health`
+   - Exemple endpoint API : `http://localhost/api/auth/login`
 
 Arrêt de la stack :
 ```bash
