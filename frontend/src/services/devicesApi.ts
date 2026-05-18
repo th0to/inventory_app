@@ -1,4 +1,4 @@
-import { createAuthHeaders } from './apiAuth'
+import { createAuthHeaders, createJsonAuthHeaders } from './apiAuth'
 
 export interface Device {
   id: number
@@ -30,6 +30,15 @@ export interface Device {
   updated_at: string
 }
 
+export interface DeviceCreatePayload {
+  serial_number: string
+  model_name: string
+  category_id: number
+  entity_id: number
+  location_id: number
+  owner_id: number
+}
+
 export async function fetchDevices(token: string): Promise<Device[]> {
   const response = await fetch('/api/devices', {
     method: 'GET',
@@ -49,4 +58,30 @@ export async function fetchDevices(token: string): Promise<Device[]> {
   }
 
   return (await response.json()) as Device[]
+}
+
+export async function createDevice(token: string, payload: DeviceCreatePayload): Promise<Device> {
+  const response = await fetch('/api/devices', {
+    method: 'POST',
+    headers: createJsonAuthHeaders(token),
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    if (response.status === 400) {
+      throw new Error('Les données du formulaire sont invalides.')
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Vous n’avez pas les droits pour ajouter un appareil.')
+    }
+
+    if (response.status >= 500) {
+      throw new Error('Le serveur est indisponible pour la création d’appareil.')
+    }
+
+    throw new Error('Impossible d’ajouter l’appareil.')
+  }
+
+  return (await response.json()) as Device
 }
