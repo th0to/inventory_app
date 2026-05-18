@@ -27,10 +27,26 @@ const typeByExt = {
 http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-    let filePath = path.resolve(baseDir, urlPath.replace(/^\//, ""));
+    const requestedPath = urlPath.replace(/^\//, "");
+    if (!/^[a-zA-Z0-9._/-]*$/.test(requestedPath)) {
+      res.writeHead(400);
+      res.end("Bad request");
+      return;
+    }
+    const normalizedPath = path.posix.normalize(`/${requestedPath}`).replace(
+      /^\//,
+      ""
+    );
+    if (normalizedPath.startsWith("..")) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
+
+    let filePath = path.resolve(baseDir, normalizedPath);
 
     if (urlPath === "/" || urlPath.endsWith("/")) {
-      filePath = path.resolve(baseDir, urlPath.replace(/^\//, ""), "index.html");
+      filePath = path.resolve(baseDir, normalizedPath, "index.html");
     }
 
     if (filePath !== baseDir && !filePath.startsWith(`${baseDir}${path.sep}`)) {

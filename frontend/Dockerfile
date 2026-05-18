@@ -9,7 +9,7 @@ RUN if [ -f package.json ]; then \
         && npm run build; \
       else \
         mkdir -p /app/dist \
-        && printf '%s\n' '<!doctype html><html><head><meta charset="utf-8"><title>Inventory App</title></head><body><h1>Frontend indisponible</h1><p>Ajoutez les sources React dans /frontend.</p></body></html>' > /app/dist/index.html; \
+        && cp /app/fallback.html /app/dist/index.html; \
       fi
 
 EXPOSE 3000

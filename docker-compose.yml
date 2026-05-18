@@ -27,7 +27,6 @@ services:
       - DB_HOST=${DB_HOST:-db}
       - DB_PORT=${DB_PORT:-5432}
       - DB_NAME=${DB_NAME:-stock}
-      - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_EXPIRE_HOURS=${JWT_EXPIRE_HOURS:-8}
     depends_on:
