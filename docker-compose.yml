@@ -2,11 +2,9 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "443:443"
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - backend
       - frontend
@@ -15,26 +13,45 @@ services:
 
   frontend:
     build: ./frontend
+    restart: unless-stopped
     networks:
       - internal
 
   backend:
     build: ./backend
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/stock
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-stock}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRE_HOURS=${JWT_EXPIRE_HOURS:-8}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
       - internal
 
   db:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=stock
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_NAME:-stock}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-stock}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
     networks:
       - internal
 
