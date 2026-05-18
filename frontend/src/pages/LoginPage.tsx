@@ -22,6 +22,7 @@ export default function LoginPage() {
     event.preventDefault()
     setError(null)
     setIsSubmitting(true)
+    let shouldResetSubmitting = true
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -36,17 +37,26 @@ export default function LoginPage() {
       })
 
       if (!response.ok) {
-        setError(response.status === 401 ? 'Identifiants incorrects.' : 'Échec de la connexion.')
+        if (response.status === 401) {
+          setError('Identifiants incorrects.')
+        } else if (response.status >= 500) {
+          setError('Le serveur est indisponible. Veuillez réessayer plus tard.')
+        } else {
+          setError('La requête de connexion est invalide.')
+        }
         return
       }
 
       const data = (await response.json()) as LoginResponse
       login(data.access_token)
+      shouldResetSubmitting = false
       navigate('/dashboard', { replace: true })
     } catch {
       setError('Impossible de se connecter. Veuillez réessayer.')
     } finally {
-      setIsSubmitting(false)
+      if (shouldResetSubmitting) {
+        setIsSubmitting(false)
+      }
     }
   }
 
