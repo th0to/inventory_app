@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import secrets
 
 from passlib.context import CryptContext
 from sqlalchemy import or_, select
@@ -72,10 +71,8 @@ def _seed_default_admin(db: Session) -> None:
 
     if admin_user is None:
         if not password:
-            password = secrets.token_urlsafe(20)
-            print(
-                "ADMIN_PASSWORD non défini, mot de passe admin généré automatiquement : "
-                f"{password}"
+            raise ValueError(
+                "ADMIN_PASSWORD doit être défini pour créer l'administrateur par défaut."
             )
         db.add(
             User(
