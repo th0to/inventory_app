@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { buildApiUrl } from '../config/api'
 
 interface LoginResponse {
   access_token: string
@@ -24,7 +25,7 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(buildApiUrl('/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

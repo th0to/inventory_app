@@ -1,4 +1,5 @@
 import { createAuthHeaders } from './apiAuth'
+import { buildApiUrl } from '../config/api'
 
 export interface NamedReference {
   id: number
@@ -54,7 +55,7 @@ async function fetchReferencesPayload<T>(
 export async function fetchCategories(token: string): Promise<NamedReference[]> {
   return fetchReferencesPayload<NamedReference[]>(
     token,
-    ['/api/ref/categories', '/api/references/categories'],
+    [buildApiUrl('/ref/categories'), buildApiUrl('/references/categories')],
     'Impossible de charger la liste des catégories.',
   )
 }
@@ -62,7 +63,7 @@ export async function fetchCategories(token: string): Promise<NamedReference[]> 
 export async function fetchEntities(token: string): Promise<NamedReference[]> {
   return fetchReferencesPayload<NamedReference[]>(
     token,
-    ['/api/ref/entities', '/api/references/entities'],
+    [buildApiUrl('/ref/entities'), buildApiUrl('/references/entities')],
     'Impossible de charger la liste des entités.',
   )
 }
@@ -70,7 +71,7 @@ export async function fetchEntities(token: string): Promise<NamedReference[]> {
 export async function fetchLocations(token: string): Promise<NamedReference[]> {
   return fetchReferencesPayload<NamedReference[]>(
     token,
-    ['/api/ref/locations', '/api/references/locations'],
+    [buildApiUrl('/ref/locations'), buildApiUrl('/references/locations')],
     'Impossible de charger la liste des lieux.',
   )
 }
@@ -78,7 +79,7 @@ export async function fetchLocations(token: string): Promise<NamedReference[]> {
 export async function fetchOwners(token: string): Promise<NamedReference[]> {
   const owners = await fetchReferencesPayload<OwnerReference[]>(
     token,
-    ['/api/ref/owners', '/api/references/owners'],
+    [buildApiUrl('/ref/owners'), buildApiUrl('/references/owners')],
     'Impossible de charger la liste des propriétaires.',
   )
 
