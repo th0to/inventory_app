@@ -18,10 +18,10 @@ Application de gestion des stocks de materiel d'exposition
    docker compose ps
    ```
 5. Accès local :
-    - Frontend (via Nginx) : `http://localhost`
+   - Frontend (via Nginx) : `http://localhost`
    - Frontend HTTPS (via Nginx) : `https://localhost`
-    - API backend (via Nginx) : `http://localhost/api/...`
-    - Exemple endpoint API : `http://localhost/api/auth/login`
+   - API backend (via Nginx) : `http://localhost/api/...`
+   - Exemple endpoint API : `http://localhost/api/auth/login`
 
 ## HTTPS Nginx (port 443)
 
