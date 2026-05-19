@@ -1,4 +1,5 @@
 import { createAuthHeaders, createJsonAuthHeaders } from './apiAuth'
+import { buildApiUrl } from '../config/api'
 
 export interface Device {
   id: number
@@ -40,7 +41,7 @@ export interface DeviceCreatePayload {
 }
 
 export async function fetchDevices(token: string): Promise<Device[]> {
-  const response = await fetch('/api/devices', {
+  const response = await fetch(buildApiUrl('/devices'), {
     method: 'GET',
     headers: createAuthHeaders(token),
   })
@@ -61,7 +62,7 @@ export async function fetchDevices(token: string): Promise<Device[]> {
 }
 
 export async function createDevice(token: string, payload: DeviceCreatePayload): Promise<Device> {
-  const response = await fetch('/api/devices', {
+  const response = await fetch(buildApiUrl('/devices'), {
     method: 'POST',
     headers: createJsonAuthHeaders(token),
     body: JSON.stringify(payload),
