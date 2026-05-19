@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import secrets
 
 from passlib.context import CryptContext
 from sqlalchemy import or_, select
@@ -8,7 +9,6 @@ from sqlalchemy.orm import Session
 
 from database import Base, SessionLocal, engine
 from models import Category, Entity, Location, User, UserRole
-import models  # noqa: F401
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -64,13 +64,19 @@ def _seed_locations(db: Session) -> None:
 def _seed_default_admin(db: Session) -> None:
     username = os.getenv("ADMIN_USERNAME", "admin")
     email = os.getenv("ADMIN_EMAIL", "admin@local")
-    password = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
+    password = os.getenv("ADMIN_PASSWORD")
 
     admin_user = db.execute(
         select(User).where(or_(User.username == username, User.email == email))
     ).scalar_one_or_none()
 
     if admin_user is None:
+        if not password:
+            password = secrets.token_urlsafe(20)
+            print(
+                "ADMIN_PASSWORD non défini, mot de passe admin généré automatiquement : "
+                f"{password}"
+            )
         db.add(
             User(
                 username=username,
