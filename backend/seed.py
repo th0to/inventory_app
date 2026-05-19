@@ -72,7 +72,7 @@ def _seed_default_admin(db: Session) -> None:
     if admin_user is None:
         if not password:
             raise ValueError(
-                "ADMIN_PASSWORD doit être défini pour créer l'administrateur par défaut."
+                "ADMIN_PASSWORD doit être définie pour créer l'administrateur par défaut."
             )
         db.add(
             User(
@@ -110,4 +110,4 @@ def seed() -> None:
 
 if __name__ == "__main__":
     seed()
-    print("Seed terminé : tables créées et données de référence insérées.")
+    print("Seed terminée : tables créées et données de référence insérées.")
