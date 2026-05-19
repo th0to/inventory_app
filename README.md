@@ -30,6 +30,7 @@ Le fichier `nginx/nginx.conf` attend ces certificats :
 - `nginx/certs/privkey.pem`
 
 En local, vous pouvez générer un certificat autosigné dans `nginx/certs/` avant `docker compose up`.
+Sans ces deux fichiers, Nginx ne pourra pas démarrer avec la configuration HTTPS (port 443).
 
 ## Variable API Vite
 
