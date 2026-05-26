@@ -1,5 +1,5 @@
 import { createAuthHeaders } from './apiAuth'
-import { buildApiUrl } from '../config/api'
+import { buildApiUrl, apiFetch } from '../config/api'
 
 export interface StatCount {
   id: number
@@ -17,7 +17,7 @@ export interface StatsSummary {
 }
 
 export async function fetchStatsSummary(token: string): Promise<StatsSummary> {
-  const response = await fetch(buildApiUrl('/stats/summary'), {
+  const response = await apiFetch(buildApiUrl('/stats/summary'), {
     method: 'GET',
     headers: createAuthHeaders(token),
   })

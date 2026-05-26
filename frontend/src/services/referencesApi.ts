@@ -1,5 +1,5 @@
 import { createAuthHeaders } from './apiAuth'
-import { buildApiUrl } from '../config/api'
+import { buildApiUrl, apiFetch } from '../config/api'
 
 export interface NamedReference {
   id: number
@@ -34,7 +34,7 @@ async function fetchReferencesPayload<T>(
   genericMessage: string,
 ): Promise<T> {
   for (const endpoint of endpoints) {
-    const response = await fetch(endpoint, {
+    const response = await apiFetch(endpoint, {
       method: 'GET',
       headers: createAuthHeaders(token),
     })

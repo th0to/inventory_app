@@ -38,6 +38,10 @@ LOCATIONS = [
     "Smart Locker",
 ]
 
+DEFAULT_ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+DEFAULT_ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@inventory.local")
+DEFAULT_ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Admin123!")
+
 
 def _seed_entities(db: Session) -> None:
     existing = {name for (name,) in db.execute(select(Entity.name)).all()}
@@ -61,24 +65,21 @@ def _seed_locations(db: Session) -> None:
 
 
 def _seed_default_admin(db: Session) -> None:
-    username = os.getenv("ADMIN_USERNAME", "admin")
-    email = os.getenv("ADMIN_EMAIL", "admin@local")
-    password = os.getenv("ADMIN_PASSWORD")
-
     admin_user = db.execute(
-        select(User).where(or_(User.username == username, User.email == email))
+        select(User).where(
+            or_(
+                User.username == DEFAULT_ADMIN_USERNAME,
+                User.email == DEFAULT_ADMIN_EMAIL,
+            )
+        )
     ).scalar_one_or_none()
 
     if admin_user is None:
-        if not password:
-            raise ValueError(
-                "ADMIN_PASSWORD doit être définie pour créer l'administrateur par défaut."
-            )
         db.add(
             User(
-                username=username,
-                email=email,
-                password_hash=pwd_context.hash(password),
+                username=DEFAULT_ADMIN_USERNAME,
+                email=DEFAULT_ADMIN_EMAIL,
+                password_hash=pwd_context.hash(DEFAULT_ADMIN_PASSWORD),
                 role=UserRole.ADMIN,
                 is_active=True,
             )

@@ -1,44 +1,78 @@
-# inventory_app
-Application de gestion des stocks de materiel d'exposition
+# Gestion de Stock LAN
 
-## Lancer le stack Docker en local
+Application centralisée en réseau local (LAN) pour la gestion avancée des appareils informatiques, structurée pour offrir sécurité, traçabilité et performances.
 
-1. Copier l'exemple d'environnement :
-   ```bash
-   cp .env.example .env
-   cp frontend/.env.example frontend/.env
-   ```
-2. Modifier au minimum `JWT_SECRET_KEY` dans `.env` avec une valeur aléatoire robuste (32+ caractères).
-3. Construire et démarrer la stack :
-   ```bash
-   docker compose up --build -d
-   ```
-4. Vérifier les services :
-   ```bash
-   docker compose ps
-   ```
-5. Accès local :
-   - Frontend (via Nginx) : `http://localhost`
-   - Frontend HTTPS (via Nginx) : `https://localhost`
-   - API backend (via Nginx) : `http://localhost/api/...`
-   - Exemple endpoint API : `http://localhost/api/auth/login`
+## 1. Architecture Technologique
 
-## HTTPS Nginx (port 443)
+- **Frontend** : React.js (Vite / TypeScript)
+- **Backend** : FastAPI (Python)
+- **Base de données** : PostgreSQL 16
+- **Reverse Proxy** : Nginx (gestion HTTPS et redirection réseau local interne)
+- **Conteneurisation** : Déploiement intégral via Docker Compose (isolation complète).
 
-Le fichier `nginx/nginx.conf` attend ces certificats :
-- `nginx/certs/fullchain.pem`
-- `nginx/certs/privkey.pem`
+L'architecture est pensée pour un accès depuis un navigateur d'entreprise, uniquement via le port 443 (HTTPS), où Nginx agit comme point d'entrée sécurisé et unique.
 
-En local, vous pouvez générer un certificat autosigné dans `nginx/certs/` avant `docker compose up`.
-Sans ces deux fichiers, Nginx ne pourra pas démarrer avec la configuration HTTPS (port 443).
+## 2. Pré-requis
 
-## Variable API Vite
+- Une machine virtuelle Linux (Debian, Ubuntu...) configurée sur le réseau local.
+- **Docker** et **Docker Compose** installés sur cette VM.
+- `git` pour récupérer ou mettre à jour le code source.
+- `openssl` (souvent inclus dans les distributions Linux) pour générer les certificats.
 
-- `frontend/.env` : `VITE_API_BASE_URL=/api`
-- Avec `/api`, le frontend cible automatiquement le même hôte que la page courante (dynamique), et Nginx redirige vers le backend.
-- Vous pouvez aussi définir une URL absolue (ex: `https://mon-hote.exemple/api`) si nécessaire.
+## 3. Démarche de déploiement (VM de Production)
 
-Arrêt de la stack :
+### Étape 1 : Récupérer le projet
+Clonez le dépôt sur votre machine virtuelle :
+```bash
+git clone <url-du-repo-git> /opt/inventory_app
+cd /opt/inventory_app
+```
+
+### Étape 2 : Configuration de l'environnement
+Copiez les fichiers de variables d'environnement et ajustez-les avec vos secrets :
+```bash
+cp .env.example .env
+cp frontend/.env.example frontend/.env
+```
+**Important** : Définissez obligatoirement une valeur robuste et aléatoire pour `JWT_SECRET_KEY` dans `.env` (32 caractères minimum), et adaptez les identifiants `DB_USER` / `DB_PASSWORD`.
+
+### Étape 3 : Génération des certificats SSL (HTTPS)
+Pour assurer l'échange sécurisé des données (le fichier de configuration nginx actuel attend `cert.pem` et `key.pem`), exécutez le script prêt à l'emploi :
+```bash
+chmod +x nginx/generate_certs.sh
+./nginx/generate_certs.sh
+```
+Ce script créera automatiquement les certificats auto-signés adéquats directement dans `./nginx/certs/`.
+
+### Étape 4 : Lancement des conteneurs
+Construisez et lancez la structure Docker :
+```bash
+docker compose up --build -d
+```
+Vous pouvez contrôler le statut en vérifiant qu'aucun conteneur n'est en statut `restarting` ou `exited`:
+```bash
+docker compose ps
+```
+
+### Étape 5 : Initialisation de la Base de Données
+Une fois les conteneurs initialisés, intégrez les données Excel pré-existantes afin de peupler le registre :
+```bash
+docker compose exec backend python import_csv.py /path/to/BD_inventory.csv
+```
+*(Alternativement ou en complément, utiliser `seed.py` si un jeu de test/tables de base d'origine y est défini : `docker compose exec backend python seed.py`)*.
+
+---
+
+## 4. Maintenance & Backups
+
+### Sauvegarde à chaud (Backup) de la BDD
+Pour exporter intégralement la base de données existante sans imposer d'arrêt de service (dump SQL complet) :
+```bash
+docker compose exec -T db pg_dumpall -c -U postgres > backup_stock_$(date +%Y-%m-%d).sql
+```
+*Note : Si vous avez modifié l'utilisateur par défaut, remplacez `postgres` par la valeur de `$DB_USER`. Il est vivement conseillé d'intégrer cette commande via un job CRON quotidien pour exporter la sauvegarde sur une partition sécurisée.*
+
+Pour arrêter le dispositif complet :
 ```bash
 docker compose down
 ```

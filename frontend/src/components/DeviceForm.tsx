@@ -19,6 +19,7 @@ interface DeviceFormValues {
   entityId: string
   locationId: string
   ownerId: string
+  orderNumber: string
 }
 
 type FormErrors = Partial<Record<keyof DeviceFormValues, string>>
@@ -30,6 +31,7 @@ const INITIAL_VALUES: DeviceFormValues = {
   entityId: '',
   locationId: '',
   ownerId: '',
+  orderNumber: '',
 }
 
 function buildValidationErrors(values: DeviceFormValues): FormErrors {
@@ -89,6 +91,10 @@ export default function DeviceForm({
     })
   }
 
+
+  const selectedEntity = entities.find((e) => String(e.id) === values.entityId)
+  const isZurich = selectedEntity?.name.toLowerCase() === 'zurich'
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -107,6 +113,7 @@ export default function DeviceForm({
         entity_id: Number(values.entityId),
         location_id: Number(values.locationId),
         owner_id: Number(values.ownerId),
+        order_number: isZurich ? values.orderNumber.trim() : null,
       })
 
       setValues(INITIAL_VALUES)
@@ -185,6 +192,20 @@ export default function DeviceForm({
         </select>
         {errors.entityId ? <span className="add-device-form__error">{errors.entityId}</span> : null}
       </label>
+
+      {isZurich ? (
+        <label>
+          Numéro de commande
+          <input
+            type="text"
+            value={values.orderNumber}
+            onChange={(event) => {
+              updateValue('orderNumber', event.target.value)
+            }}
+            disabled={isDisabled}
+          />
+        </label>
+      ) : null}
 
       <label>
         Lieu *

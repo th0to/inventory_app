@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, useEffect, type ReactNode } from 'react'
 import { AuthContext, type AuthContextValue, type JwtPayload } from './authContext'
+import { setUnauthorizedCallback } from '../config/api'
 
 const TOKEN_STORAGE_KEY = 'inventory_app_token'
 
@@ -70,6 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearStoredToken()
     setToken(null)
   }, [])
+
+  useEffect(() => {
+    setUnauthorizedCallback(logout)
+  }, [logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({
