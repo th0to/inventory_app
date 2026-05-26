@@ -9,10 +9,12 @@ from routers.auth import router as auth_router
 from routers.devices import router as devices_router
 from routers.references import router as references_router
 from routers.stats import router as stats_router
+from security import validate_jwt_secret_key
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    validate_jwt_secret_key()
     await asyncio.to_thread(Base.metadata.create_all, bind=engine)
     yield
 

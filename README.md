@@ -35,6 +35,7 @@ cp .env.example .env
 cp frontend/.env.example frontend/.env
 ```
 **Important** : Définissez obligatoirement une valeur robuste et aléatoire pour `JWT_SECRET_KEY` dans `.env` (32 caractères minimum), et adaptez les identifiants `DB_USER` / `DB_PASSWORD`.
+Commande recommandée pour générer la clé : `openssl rand -hex 32`.
 
 ### Étape 3 : Génération des certificats SSL (HTTPS)
 Pour assurer l'échange sécurisé des données (le fichier de configuration nginx actuel attend `cert.pem` et `key.pem`), exécutez le script prêt à l'emploi :
