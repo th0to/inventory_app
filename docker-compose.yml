@@ -15,9 +15,6 @@ services:
 
   frontend:
     build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     restart: unless-stopped
     networks:
       - internal
