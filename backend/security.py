@@ -8,7 +8,7 @@ _DEFAULT_KEYS = {
     "change-me-in-production",
     "change-me-with-a-random-32-characters-minimum",
 }
-JWT_SECRET_KEY = ""
+JWT_SECRET_KEY: str | None = None
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "8"))
 
@@ -46,6 +46,9 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def create_access_token(user_id: int, role: str) -> str:
+    if JWT_SECRET_KEY is None:
+        raise RuntimeError("JWT_SECRET_KEY n'a pas été validée au démarrage.")
+
     payload = {
         "sub": str(user_id),
         "role": role,
@@ -61,4 +64,7 @@ def decode_access_token(token: str) -> dict:
         jwt.ExpiredSignatureError: If the token has expired.
         jwt.InvalidTokenError: If the token is invalid or the signature does not match.
     """
+    if JWT_SECRET_KEY is None:
+        raise RuntimeError("JWT_SECRET_KEY n'a pas été validée au démarrage.")
+
     return jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
