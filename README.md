@@ -34,8 +34,18 @@ Copiez les fichiers de variables d'environnement et ajustez-les avec vos secrets
 cp .env.example .env
 cp frontend/.env.example frontend/.env
 ```
-**Important** : Définissez obligatoirement une valeur robuste et aléatoire pour `JWT_SECRET_KEY` dans `.env` (32 caractères minimum), et adaptez les identifiants `DB_USER` / `DB_PASSWORD`.
-Commande recommandée pour générer la clé : `openssl rand -hex 32`.
+**Important** : Définissez obligatoirement une valeur robuste et aléatoire pour `JWT_SECRET_KEY` dans `.env`. La clé doit faire 32 caractères minimum. Vous pouvez générer une clé forte avec :
+```bash
+openssl rand -hex 32
+```
+*Note : Changer cette clé aura pour effet de déconnecter immédiatement tous les utilisateurs actifs.*
+
+### Sécurisation post-déploiement
+Protégez les fichiers de configuration contre la lecture non autorisée sur l'environnement de production :
+```bash
+chmod 600 .env
+chown root:root .env
+```
 
 ### Étape 3 : Génération des certificats SSL (HTTPS)
 Pour assurer l'échange sécurisé des données (le fichier de configuration nginx actuel attend `cert.pem` et `key.pem`), exécutez le script prêt à l'emploi :

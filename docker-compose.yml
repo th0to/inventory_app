@@ -14,7 +14,10 @@ services:
       - internal
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
     restart: unless-stopped
     networks:
       - internal

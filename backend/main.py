@@ -15,7 +15,6 @@ from security import validate_jwt_secret_key
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     validate_jwt_secret_key()
-    await asyncio.to_thread(Base.metadata.create_all, bind=engine)
     yield
 
 
