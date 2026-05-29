@@ -19,11 +19,11 @@ branch_labels = None
 depends_on = None
 
 
-user_role_enum = sa.Enum("visitor", "user", "admin", name="user_role")
+user_role_enum = sa.Enum("visitor", "user", "admin", name="user_role", create_type=False)
 
 
 def upgrade() -> None:
-    user_role_enum.create(op.get_bind(), checkfirst=True)
+    # user_role_enum.create(op.get_bind(), checkfirst=True)
 
     op.create_table(
         "users",
