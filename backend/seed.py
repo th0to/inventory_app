@@ -93,8 +93,6 @@ def _seed_default_admin(db: Session) -> None:
 
 
 def seed() -> None:
-    Base.metadata.create_all(bind=engine)
-
     db = SessionLocal()
     try:
         _seed_entities(db)
