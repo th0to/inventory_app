@@ -10,12 +10,12 @@ import {
   fetchLocations,
   type NamedReference,
 } from '../services/referencesApi'
-import './inventory.css'
 
 const DEFAULT_FILTERS: InventoryFilters = {
   categoryId: '',
   entityId: '',
   locationId: '',
+  searchString: '',
 }
 
 export default function InventoryPage() {
@@ -33,10 +33,7 @@ export default function InventoryPage() {
 
     const loadInventoryData = async () => {
       if (!token) {
-        if (!isCancelled) {
-          setError('Session invalide. Veuillez vous reconnecter.')
-          setIsLoading(false)
-        }
+        if (!isCancelled) setError('Session invalide. Veuillez vous reconnecter.')
         return
       }
 
@@ -56,54 +53,41 @@ export default function InventoryPage() {
           setError(null)
         }
       } catch (err) {
-        if (!isCancelled) {
-          setError(
-            err instanceof Error ? err.message : 'Impossible de charger les données d\'inventaire.',
-          )
-        }
+        if (!isCancelled) setError(err instanceof Error ? err.message : 'Impossible de charger les données d\'inventaire.')
       } finally {
-        if (!isCancelled) {
-          setIsLoading(false)
-        }
+        if (!isCancelled) setIsLoading(false)
       }
     }
 
     loadInventoryData()
-
-    return () => {
-      isCancelled = true
-    }
+    return () => { isCancelled = true }
   }, [token])
 
   const filteredDevices = useMemo(() => {
     return devices.filter((device) => {
-      if (filters.categoryId && device.category_id !== Number(filters.categoryId)) {
-        return false
+      if (filters.categoryId && device.category_id !== Number(filters.categoryId)) return false
+      if (filters.entityId && device.entity_id !== Number(filters.entityId)) return false
+      if (filters.locationId && device.location_id !== Number(filters.locationId)) return false
+      if (filters.searchString) {
+        const s = filters.searchString.toLowerCase();
+        const scm = `${device.serial_number} ${device.model_name}`.toLowerCase();
+        if (!scm.includes(s)) return false;
       }
-
-      if (filters.entityId && device.entity_id !== Number(filters.entityId)) {
-        return false
-      }
-
-      if (filters.locationId && device.location_id !== Number(filters.locationId)) {
-        return false
-      }
-
       return true
     })
-  }, [devices, filters.categoryId, filters.entityId, filters.locationId])
+  }, [devices, filters.categoryId, filters.entityId, filters.locationId, filters.searchString])
 
   const isAdmin = role === 'admin'
 
   return (
     <AuthenticatedLayout title="Inventaire">
-      <section className="inventory-page">
-        {isLoading ? <p>Chargement de l&apos;inventaire…</p> : null}
+      <section className="space-y-6">
+        {isLoading ? <p className="text-[#555555] font-medium flex items-center justify-center p-12">Chargement de l&apos;inventaire…</p> : null}
 
         {!isLoading && error ? (
-          <p role="alert" className="inventory-error">
+          <div className="bg-[#CC0000]/10 border border-[#CC0000] text-[#CC0000] px-4 py-3 rounded-md text-sm font-medium">
             {error}
-          </p>
+          </div>
         ) : null}
 
         {!isLoading && !error ? (
@@ -116,8 +100,9 @@ export default function InventoryPage() {
               onFiltersChange={setFilters}
             />
 
-            <p className="inventory-meta">
-              <span>{filteredDevices.length} appareil(s) affiché(s)</span>
+            <p className="text-sm text-[#555555] font-medium flex items-center gap-2">
+              <span className="text-[#1A1A1A] font-semibold">{filteredDevices.length} appareil(s) affiché(s)</span>
+              <span>•</span>
               <span>{devices.length} appareil(s) au total</span>
             </p>
 

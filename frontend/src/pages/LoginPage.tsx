@@ -58,39 +58,54 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Connexion</h1>
-      <p>Connectez-vous avec vos identifiants.</p>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="username">Nom d&apos;utilisateur</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(event) => {
-            setUsername(event.target.value)
-            setError(null)
-          }}
-          autoComplete="username"
-          required
-        />
-        <label htmlFor="password">Mot de passe</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(event) => {
-            setPassword(event.target.value)
-            setError(null)
-          }}
-          autoComplete="current-password"
-          required
-        />
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Connexion en cours…' : 'Se connecter'}
-        </button>
-      </form>
-      {error ? <p role="alert">{error}</p> : null}
+    <main className="min-h-screen flex items-center justify-center bg-[#F4F4F4] font-sans">
+      <div className="bg-white shadow-md rounded-lg p-10 w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="font-bold text-3xl text-[#0096D6] mb-1">HP | Gestion de Stock</h1>
+          <p className="text-sm text-[#555555]">Outil interne — Accès restreint</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="username" className="text-sm font-medium text-[#1A1A1A]">Nom d&apos;utilisateur</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(event) => {
+                setUsername(event.target.value)
+                setError(null)
+              }}
+              autoComplete="username"
+              required
+              className="border border-[#E0E0E0] rounded-md p-3 w-full text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#0096D6]"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-[#1A1A1A]">Mot de passe</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                setError(null)
+              }}
+              autoComplete="current-password"
+              required
+              className="border border-[#E0E0E0] rounded-md p-3 w-full text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#0096D6]"
+            />
+          </div>
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full bg-[#0096D6] text-white hover:bg-[#007AB8] transition-colors py-3 rounded-md font-medium text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? 'Connexion en cours…' : 'Se connecter'}
+          </button>
+        </form>
+        {error ? <p role="alert" className="mt-4 text-center text-sm font-medium text-[#CC0000]">{error}</p> : null}
+      </div>
     </main>
   )
 }

@@ -10,7 +10,6 @@ import {
   fetchOwners,
   type NamedReference,
 } from '../services/referencesApi'
-import './add-device.css'
 
 export default function AddDevicePage() {
   const { token, role } = useAuth()
@@ -59,25 +58,18 @@ export default function AddDevicePage() {
           )
         }
       } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     loadReferences()
-
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [token])
 
   const canSubmit = role === 'admin'
 
   const handleCreateDevice = async (payload: DeviceCreatePayload) => {
-    if (!token) {
-      throw new Error('Session invalide. Veuillez vous reconnecter.')
-    }
+    if (!token) throw new Error('Session invalide. Veuillez vous reconnecter.')
 
     setIsSubmitting(true)
     setError(null)
@@ -91,30 +83,32 @@ export default function AddDevicePage() {
       throw err
     } finally {
       setIsSubmitting(false)
+      // Hide success notification after 5s
+      setTimeout(() => setSuccessMessage(null), 5000)
     }
   }
 
   return (
-    <AuthenticatedLayout title="Ajouter un appareil">
-      <section className="add-device-page">
-        {isLoading ? <p>Chargement du formulaire…</p> : null}
+    <AuthenticatedLayout title="">
+      <section className="space-y-6">
+        {isLoading ? <p className="text-center font-medium text-[#555555] py-10">Chargement du formulaire…</p> : null}
 
         {!isLoading && !canSubmit ? (
-          <p role="alert" className="add-device-warning">
+          <div className="bg-[#FF6B00]/10 border border-[#FF6B00] text-[#FF6B00] px-4 py-3 rounded-md text-sm font-medium">
             Seuls les administrateurs peuvent ajouter un appareil.
-          </p>
+          </div>
         ) : null}
 
         {error ? (
-          <p role="alert" className="add-device-error">
+          <div className="bg-[#CC0000]/10 border border-[#CC0000] text-[#CC0000] px-4 py-3 rounded-md text-sm font-medium">
             {error}
-          </p>
+          </div>
         ) : null}
 
         {successMessage ? (
-          <p role="status" className="add-device-success">
+          <div className="bg-[#007A33]/10 border border-[#007A33] text-[#007A33] px-4 py-3 rounded-md text-sm font-medium">
             {successMessage}
-          </p>
+          </div>
         ) : null}
 
         {!isLoading ? (
