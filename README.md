@@ -1,89 +1,147 @@
 # Gestion de Stock LAN
 
-Application centralisée en réseau local (LAN) pour la gestion avancée des appareils informatiques, structurée pour offrir sécurité, traçabilité et performances.
+Application web centralisée, hébergée en réseau local (LAN), pour la gestion du parc de matériel informatique HP d'un bureau à Genève.
 
-## 1. Architecture Technologique
+Développée seul dans le cadre d'un projet réel en entreprise, avec l'aide d'outils IA (conception, génération de code, debugging).
 
-- **Frontend** : React.js (Vite / TypeScript)
-- **Backend** : FastAPI (Python)
-- **Base de données** : PostgreSQL 16
-- **Reverse Proxy** : Nginx (gestion HTTPS et redirection réseau local interne)
-- **Conteneurisation** : Déploiement intégral via Docker Compose (isolation complète).
+> **Statut** : Fonctionnelle en environnement local — déploiement sur VM de production en cours.
 
-L'architecture est pensée pour un accès depuis un navigateur d'entreprise, uniquement via le port 443 (HTTPS), où Nginx agit comme point d'entrée sécurisé et unique.
+---
 
-## 2. Pré-requis
+## Contexte
 
-- Une machine virtuelle Linux (Debian, Ubuntu...) configurée sur le réseau local.
-- **Docker** et **Docker Compose** installés sur cette VM.
-- `git` pour récupérer ou mettre à jour le code source.
-- `openssl` (souvent inclus dans les distributions Linux) pour générer les certificats.
+Le bureau gérait son inventaire sur un fichier Excel partagé, source d'erreurs, de conflits d'accès et d'absence de traçabilité. L'objectif était de migrer vers une application web accessible depuis n'importe quel poste du réseau interne, sans dépendance à Internet.
 
-## 3. Démarche de déploiement (VM de Production)
+Le parc couvre plusieurs centaines d'appareils HP (laptops, desktops, workstations, displays, docking, thin clients) répartis entre quatre entités : GVA, Zurich, CDS et FIX.
 
-### Étape 1 : Récupérer le projet
-Clonez le dépôt sur votre machine virtuelle :
+---
+
+## Fonctionnalités
+
+- **Dashboard** — statistiques en temps réel : répartition par catégorie, entité, emplacement et responsable
+- **Inventaire** — tableau filtrable et paginé avec recherche par numéro de série ou modèle
+- **Ajout de device** — formulaire structuré avec champs conditionnels selon la catégorie et l'entité
+- **Gestion des accès** — deux rôles : utilisateur standard (lecture + ajout) et administrateur (modification + suppression)
+- **Traçabilité** — historique complet de chaque modification (champ, ancienne valeur, nouvelle valeur, auteur, horodatage)
+- **Sécurité** — HTTPS en réseau local (certificat auto-signé), authentification JWT, PostgreSQL jamais exposé
+
+---
+
+## Stack technique
+
+| Couche | Technologie |
+|---|---|
+| Frontend | React.js + TypeScript (Vite) |
+| Backend | FastAPI (Python) |
+| Base de données | PostgreSQL 16 |
+| Reverse proxy | Nginx (SSL, routage) |
+| Conteneurisation | Docker Compose |
+| Authentification | JWT (JSON Web Tokens) |
+
+---
+
+## Architecture
+
+```
+Réseau LAN
+    │  HTTPS (port 443)
+    ▼
+ Nginx
+    ├──▶ React (fichiers statiques)
+    └──▶ FastAPI ──▶ PostgreSQL
+```
+
+Tous les services tournent dans des containers Docker isolés sur une VM Linux. PostgreSQL n'est jamais exposé directement au réseau.
+
+---
+
+## Déploiement (VM de production)
+
+### Prérequis
+
+- VM Linux (Debian 12 ou Ubuntu 24 LTS)
+- Docker et Docker Compose installés
+- `git` et `openssl` disponibles
+
+### Étape 1 — Récupérer le projet
+
 ```bash
 git clone <url-du-repo-git> /opt/inventory_app
 cd /opt/inventory_app
 ```
 
-### Étape 2 : Configuration de l'environnement
-Copiez les fichiers de variables d'environnement et ajustez-les avec vos secrets :
+### Étape 2 — Configuration de l'environnement
+
 ```bash
 cp .env.example .env
 cp frontend/.env.example frontend/.env
 ```
-**Important** : Définissez obligatoirement une valeur robuste et aléatoire pour `JWT_SECRET_KEY` dans `.env`. La clé doit faire 32 caractères minimum. Vous pouvez générer une clé forte avec :
+
+Définir une clé JWT robuste dans `.env` (32 caractères minimum) :
+
 ```bash
 openssl rand -hex 32
 ```
-*Note : Changer cette clé aura pour effet de déconnecter immédiatement tous les utilisateurs actifs.*
 
-### Sécurisation post-déploiement
-Protégez les fichiers de configuration contre la lecture non autorisée sur l'environnement de production :
+Puis sécuriser le fichier :
+
 ```bash
 chmod 600 .env
 chown root:root .env
 ```
 
-### Étape 3 : Génération des certificats SSL (HTTPS)
-Pour assurer l'échange sécurisé des données (le fichier de configuration nginx actuel attend `cert.pem` et `key.pem`), exécutez le script prêt à l'emploi :
+### Étape 3 — Génération des certificats SSL
+
 ```bash
 chmod +x nginx/generate_certs.sh
 ./nginx/generate_certs.sh
 ```
-Ce script créera automatiquement les certificats auto-signés adéquats directement dans `./nginx/certs/`.
 
-### Étape 4 : Lancement des conteneurs
-Construisez et lancez la structure Docker :
+Les certificats auto-signés sont créés dans `./nginx/certs/`.
+
+### Étape 4 — Lancement
+
 ```bash
 docker compose up --build -d
-```
-Vous pouvez contrôler le statut en vérifiant qu'aucun conteneur n'est en statut `restarting` ou `exited`:
-```bash
 docker compose ps
 ```
 
-### Étape 5 : Initialisation de la Base de Données
-Une fois les conteneurs initialisés, intégrez les données Excel pré-existantes afin de peupler le registre :
+### Étape 5 — Import des données existantes
+
 ```bash
 docker compose exec backend python import_csv.py /path/to/BD_inventory.csv
 ```
-*(Alternativement ou en complément, utiliser `seed.py` si un jeu de test/tables de base d'origine y est défini : `docker compose exec backend python seed.py`)*.
 
 ---
 
-## 4. Maintenance & Backups
+## Maintenance & Backups
 
-### Sauvegarde à chaud (Backup) de la BDD
-Pour exporter intégralement la base de données existante sans imposer d'arrêt de service (dump SQL complet) :
+### Sauvegarde de la base de données
+
 ```bash
 docker compose exec -T db pg_dumpall -c -U postgres > backup_stock_$(date +%Y-%m-%d).sql
 ```
-*Note : Si vous avez modifié l'utilisateur par défaut, remplacez `postgres` par la valeur de `$DB_USER`. Il est vivement conseillé d'intégrer cette commande via un job CRON quotidien pour exporter la sauvegarde sur une partition sécurisée.*
 
-Pour arrêter le dispositif complet :
+Recommandé : intégrer cette commande dans un job CRON quotidien.
+
+### Arrêt
+
 ```bash
 docker compose down
 ```
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [USER_GUIDE.md](./USER_GUIDE.md) | Guide d'utilisation pour les utilisateurs finaux |
+| [ADMIN_GUIDE.md](./ADMIN_GUIDE.md) | Guide administrateur (comptes, backups, maintenance) |
+
+---
+
+## Auteur
+
+Thomas Marinier — Étudiant en Bachelor Informatique (Geneva Institute of Technology)  
+Projet réalisé seul, en environnement réel d'entreprise.
