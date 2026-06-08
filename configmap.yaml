@@ -1,0 +1,11 @@
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-config
+  namespace: inventory-app
+data:
+  DB_HOST: "postgres-service"   # nom du Service PostgreSQL
+  DB_PORT: "5432"
+  DB_NAME: "stock"
+  JWT_EXPIRE_HOURS: "8"
