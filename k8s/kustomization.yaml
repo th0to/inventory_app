@@ -1,0 +1,13 @@
+# Permet `kubectl apply -k k8s/` en une commande.
+# NB : ni le Secret applicatif (inventory-secrets) ni le Secret TLS (inventory-tls)
+# ne figurent ici — ils se créent hors-versionnement via kubectl (voir K8S_GUIDE.md).
+# secrets.example.yaml n'est qu'un gabarit documentaire, volontairement non listé.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - postgres.yaml
+  - backend.yaml
+  - frontend.yaml
+  - ingress.yaml
