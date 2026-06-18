@@ -4,3 +4,13 @@ __pycache__/
 *.patch.js
 server.js
 fallback.html
+
+# Real inventory data — never commit (contains real serial numbers / owners)
+BD_inventory.csv
+*.csv
+# Credentials produced by import_csv.py
+imported_accounts*.log
+
+# Local throwaway virtualenv for running tests outside Docker
+.venv_test/
+.pytest_cache/

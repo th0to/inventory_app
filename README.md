@@ -109,8 +109,30 @@ docker compose ps
 ### Étape 5 — Import des données existantes
 
 ```bash
+# Vérification à blanc (recommandé d'abord) : valide le mapping et affiche le
+# rapport (importés / mis à jour / skippés / erreurs) sans rien écrire en base.
+docker compose exec backend python import_csv.py /path/to/BD_inventory.csv --dry-run
+
+# Import réel (idempotent : ré-exécutable sans dupliquer les devices existants)
 docker compose exec backend python import_csv.py /path/to/BD_inventory.csv
 ```
+
+Le script :
+
+- est **idempotent** : un device déjà présent (même `Serial Number`) est mis à
+  jour si des champs ont changé (avec une entrée dans `device_history`), sinon
+  laissé tel quel — aucune duplication.
+- **rejette** les lignes sans `Serial Number` (listées dans le rapport) au lieu de
+  générer un identifiant aléatoire.
+- crée à la volée les comptes des `OWNER` inconnus avec un **mot de passe fort
+  aléatoire**, écrit dans un fichier `imported_accounts_<timestamp>.log` (jamais
+  affiché en clair, jamais committé — voir `.gitignore`). Communiquez ces mots de
+  passe manuellement.
+  > ⚠️ L'application ne gère pas encore le changement de mot de passe à la première
+  > connexion : faites-le changer manuellement après communication.
+
+`BD_inventory.csv` contient des numéros de série et des noms réels : il est exclu
+du dépôt via `.gitignore` et ne doit **jamais** être committé.
 
 ---
 
