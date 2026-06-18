@@ -80,8 +80,6 @@ export default function DeviceForm({ categories, entities, locations, owners, is
         location_id: Number(values.locationId),
         owner_id: Number(values.ownerId),
         order_number: isZurich ? values.orderNumber.trim() : null,
-        
-        // Extended payload supported via 'any' bypassing TS errors without deviceApi refactoring
         generation: values.generation.trim() || null,
         client: isClient ? values.clientName.trim() : null,
         is_pv: values.isPv,
@@ -90,8 +88,8 @@ export default function DeviceForm({ categories, entities, locations, owners, is
         storage_gb: showComputerSpecs && values.storageGb ? Number(values.storageGb) : null,
         screen_size: showDisplaySpecs ? values.screenSize.trim() : null,
         power_w: showDockingSpecs && values.powerW ? Number(values.powerW) : null,
-        comment: values.comment.trim() || null
-      } as any)
+        comment: values.comment.trim() || null,
+      })
 
       setValues(INITIAL_VALUES)
       setErrors({})
