@@ -9,6 +9,7 @@ from routers.auth import router as auth_router
 from routers.devices import router as devices_router
 from routers.references import router as references_router
 from routers.stats import router as stats_router
+from routers.users import router as users_router
 from security import validate_jwt_secret_key
 
 
@@ -24,6 +25,7 @@ app.include_router(auth_router)
 app.include_router(references_router)
 app.include_router(devices_router)
 app.include_router(stats_router)
+app.include_router(users_router)
 
 
 @app.get("/health", tags=["system"])
