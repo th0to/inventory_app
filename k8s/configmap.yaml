@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inventory-config
+  namespace: inventory-app
+data:
+  # Variables non sensibles partagées par le backend (et Postgres pour DB_NAME).
+  DB_HOST: "postgres-service"   # doit matcher le nom du Service PostgreSQL
+  DB_PORT: "5432"
+  DB_NAME: "stock"
+  JWT_EXPIRE_HOURS: "8"

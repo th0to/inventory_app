@@ -39,6 +39,15 @@ export interface DeviceCreatePayload {
   location_id: number
   owner_id: number
   order_number?: string | null
+  generation?: string | null
+  client?: string | null
+  is_pv?: boolean
+  cpu?: string | null
+  ram_gb?: number | null
+  storage_gb?: number | null
+  screen_size?: string | null
+  power_w?: number | null
+  comment?: string | null
 }
 
 export async function fetchDevices(token: string): Promise<Device[]> {

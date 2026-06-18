@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: inventory-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          # Image construite localement depuis backend/Dockerfile puis importée
+          # dans k3s (voir K8S_GUIDE.md). IfNotPresent => pas de pull registre.
+          image: inventory-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          # Toutes les variables (DB_*, JWT_*) proviennent du ConfigMap et du Secret.
+          # Les clés du Secret (DB_USER/DB_PASSWORD/JWT_SECRET_KEY) sont nommées
+          # comme les variables attendues par database.py / security.py.
+          envFrom:
+            - configMapRef:
+                name: inventory-config
+            - secretRef:
+                name: inventory-secrets
+          # L'entrypoint exécute `alembic upgrade head` puis uvicorn. Le startupProbe
+          # laisse le temps aux migrations avant de juger le Pod « démarré ».
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 5
+            failureThreshold: 30      # jusqu'à ~150s pour migrations + démarrage
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 15
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "768Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: inventory-app
+spec:
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000

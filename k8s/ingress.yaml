@@ -1,0 +1,35 @@
+# Ingress Traefik (embarqué par défaut dans k3s — pas d'ingress-nginx installé).
+# Termine le TLS avec le certificat auto-signé existant (Secret inventory-tls,
+# créé via `kubectl create secret tls` — voir K8S_GUIDE.md) et route :
+#   /api  -> backend-service:8000
+#   /     -> frontend-service:80
+# (réplique du reverse-proxy nginx/nginx.conf de l'ancien Docker Compose).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inventory-ingress
+  namespace: inventory-app
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - stock.entreprise.local
+      secretName: inventory-tls
+  rules:
+    - host: stock.entreprise.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80

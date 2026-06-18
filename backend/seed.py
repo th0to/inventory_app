@@ -34,7 +34,7 @@ LOCATIONS = [
     "Showroom",
     "Client",
     "Test",
-    "5ème",
+    "5eme",
     "Smart Locker",
 ]
 

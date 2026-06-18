@@ -49,12 +49,20 @@ export default function AuthenticatedLayout({ title, children }: AuthenticatedLa
             >
               Inventaire
             </Link>
-            <Link 
-              to="/add-device" 
+            <Link
+              to="/add-device"
               className={`px-4 py-2 rounded transition-colors text-sm ${location.pathname === '/add-device' ? 'bg-white text-[#0096D6] font-semibold' : 'text-white hover:bg-[#007AB8]'}`}
             >
               Ajouter un appareil
             </Link>
+            {isAdmin && (
+              <Link
+                to="/users"
+                className={`px-4 py-2 rounded transition-colors text-sm ${location.pathname === '/users' ? 'bg-white text-[#0096D6] font-semibold' : 'text-white hover:bg-[#007AB8]'}`}
+              >
+                Comptes
+              </Link>
+            )}
           </div>
         </div>
 
