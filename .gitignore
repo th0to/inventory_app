@@ -14,3 +14,7 @@ imported_accounts*.log
 # Local throwaway virtualenv for running tests outside Docker
 .venv_test/
 .pytest_cache/
+
+# TLS certificates: never commit private keys. Regenerate locally via
+# nginx/generate_certs.sh (the .gitkeep keeps the dir present after a clone).
+nginx/certs/*.pem
