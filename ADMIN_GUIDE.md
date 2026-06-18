@@ -4,9 +4,32 @@ En tant qu'administrateur du parc matériel local, vous disposez des droits les 
 
 ## 1. Gestion des Utilisateurs et Rôles
 
-Actuellement, l'architecture permet deux dimensions de droits (Utilisateur standard & Administrateur). En V1, il est courant de ne pas avoir de console web UI pour modifier ou créer brutalement des accès pour de nouveaux employés. Ceux-ci se font directement dans la base de données ou scripts de bootstrap.
+La gestion des comptes se fait désormais **depuis l'interface web**, via l'onglet
+**Comptes** de la barre de navigation (visible uniquement pour les administrateurs).
 
-Pour générer un nouveau compte ou modifier un utilisateur à la racine (sur la VM d'accueil de Docker) :
+Depuis cette page vous pouvez :
+
+- **Lister** tous les comptes (nom d'utilisateur, email, rôle, statut actif/inactif) ;
+- **Créer** un compte : renseignez nom d'utilisateur, email, mot de passe initial et
+  rôle (`user` par défaut, ou `admin`). Le mot de passe est hashé côté serveur ;
+  communiquez-le manuellement à l'utilisateur ;
+- **Modifier** un compte (icône crayon) : changer le rôle, activer/désactiver, et
+  réinitialiser le mot de passe (laisser le champ vide pour ne pas le changer) ;
+- **Désactiver** un compte (icône corbeille) : le compte ne peut plus se connecter.
+
+> **Désactivation plutôt que suppression** : « supprimer » un compte le passe en
+> `is_active = false` (désactivation logique). La suppression définitive en base est
+> volontairement écartée car les appareils référencent leur propriétaire / créateur
+> (`devices.owner_id`, `created_by`, `updated_by`) et l'historique (`device_history.user_id`) :
+> une suppression dure violerait ces contraintes. Pour réactiver un compte désactivé,
+> ré-éditez-le et cochez « Actif ».
+>
+> Garde-fou : un administrateur ne peut ni se désactiver ni se supprimer lui-même.
+
+### Alternative en ligne de commande (si l'interface est inaccessible)
+
+En cas de problème d'accès à l'interface (ex. plus aucun admin actif), vous pouvez
+créer/réparer un compte directement dans le conteneur backend :
 ```bash
 docker compose exec backend python -c "
 from database import SessionLocal
@@ -18,14 +41,15 @@ new_admin = User(
     username='admin_nom',
     email='admin@entreprise.com',
     password_hash=hash_password('MotDePasseTresSecurise'),
-    role=UserRole.admin
+    role=UserRole.ADMIN,
 )
 db.add(new_admin)
 db.commit()
 print('Utilisateur créé avec succès !')
 "
 ```
-Vous pouvez utiliser la même méthodologie et appeler la commande `db.query(User).filter(...)` pour ajuster un mot de passe perdu par un collaborateur.
+La même méthode avec `db.query(User).filter(...)` permet d'ajuster un mot de passe
+perdu par un collaborateur.
 
 ## 2. Modifications et Suppressions d'Appareils (via Interface)
 
