@@ -989,7 +989,7 @@ Total                                          │ ~8 semaines
 ### 9.2 Détail des phases
 
 #### Phase 0 — Infrastructure (S1)
-- [ ] Provisionner la VM Linux (Debian 12 ou Ubuntu 24 LTS)
+- [ ] Provisionner la VM Linux (Debian 13 / Trixie)
 - [ ] Installer Docker et Docker Compose
 - [ ] Configurer le pare-feu VM (port 443 uniquement ouvert sur le LAN)
 - [ ] Définir le nom d'hôte interne (ex: `stock.entreprise.local`)
