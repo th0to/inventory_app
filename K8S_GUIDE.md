@@ -20,12 +20,37 @@ Tous les manifestes sont dans le dossier [`k8s/`](k8s/). Architecture :
 
 ---
 
-## 1. Prérequis
+## 1. Prérequis VM et installation de k3s
 
-- Une VM avec **k3s** installé (Traefik est embarqué par défaut — ne pas le désactiver).
-- `kubectl` configuré sur la VM (k3s fournit `/etc/rancher/k3s/k3s.yaml`).
-- `docker` (ou `nerdctl`) pour construire les images.
-- Cible matérielle : **4 vCPU / 8 Go RAM** partagés (control-plane k3s + workloads).
+La VM est **provisionnée manuellement** (pas de Terraform/cloud-init) :
+
+1. **Installer Debian 13 (Trixie)** sur la VM Proxmox via l'ISO standard.
+   Dimensionnement recommandé : **4 vCPU / 8 Go RAM / 60–80 Go de disque**
+   (cohérent avec le budget ressources des workloads, cf. §8).
+2. **Configurer l'accès SSH** (clé publique de l'admin, `sudo` disponible).
+3. **Installer k3s** (inclut Traefik comme Ingress Controller — ne pas le désactiver) :
+
+   ```bash
+   curl -sfL https://get.k3s.io | sh -
+   ```
+
+4. **Vérifier** que le nœud est prêt :
+
+   ```bash
+   sudo k3s kubectl get nodes      # ou : kubectl get nodes
+   # Le nœud doit apparaître en STATUS "Ready".
+   ```
+
+5. **Configurer `kubectl`** sans `sudo` (k3s écrit son kubeconfig dans
+   `/etc/rancher/k3s/k3s.yaml`) :
+
+   ```bash
+   mkdir -p ~/.kube && sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+   sudo chown "$(id -u):$(id -g)" ~/.kube/config
+   ```
+
+Sur la machine de build, il faut aussi **`docker`** (ou `nerdctl`) pour construire les
+images (§2) et **`openssl`** pour le certificat TLS (§3.3).
 
 ---
 

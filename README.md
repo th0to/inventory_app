@@ -34,8 +34,8 @@ Le parc couvre plusieurs centaines d'appareils HP (laptops, desktops, workstatio
 | Frontend | React.js + TypeScript (Vite) |
 | Backend | FastAPI (Python) |
 | Base de données | PostgreSQL 16 |
-| Reverse proxy | Nginx (SSL, routage) |
-| Conteneurisation | Docker Compose |
+| Ingress / TLS | Traefik (embarqué k3s) ; Nginx sert le build frontend |
+| Orchestration | Kubernetes (k3s mono-nœud) |
 | Authentification | JWT (JSON Web Tokens) |
 
 ---
@@ -46,8 +46,8 @@ Le parc couvre plusieurs centaines d'appareils HP (laptops, desktops, workstatio
 Réseau LAN
     │  HTTPS (port 443)
     ▼
- Nginx
-    ├──▶ React (fichiers statiques)
+ Ingress Traefik (k3s, TLS)
+    ├──▶ Frontend Nginx (fichiers statiques React)
     └──▶ FastAPI ──▶ PostgreSQL
 ```
 
@@ -57,64 +57,30 @@ Tous les services tournent dans des containers Docker isolés sur une VM Linux. 
 
 ## Déploiement (VM de production)
 
-### Prérequis
+Le déploiement de production se fait sur **Kubernetes (k3s mono-nœud)**, sur une VM
+**Debian 13 (Trixie)** provisionnée manuellement. La procédure complète — prérequis VM,
+installation de k3s, génération du certificat TLS, création des Secrets, application des
+manifestes `k8s/`, import des données et vérifications — est décrite dans
+**[K8S_GUIDE.md](./K8S_GUIDE.md)**.
 
-- VM Linux (Debian 12 ou Ubuntu 24 LTS)
-- Docker et Docker Compose installés
-- `git` et `openssl` disponibles
+> L'ancien déploiement par **Docker Compose n'est plus maintenu** sur cette branche :
+> `docker-compose.yml` a été retiré au profit des manifestes Kubernetes (`k8s/`).
 
-### Étape 1 — Récupérer le projet
+### Import des données existantes (CSV)
 
-```bash
-git clone <url-du-repo-git> /opt/inventory_app
-cd /opt/inventory_app
-```
-
-### Étape 2 — Configuration de l'environnement
-
-```bash
-cp .env.example .env
-cp frontend/.env.example frontend/.env
-```
-
-Définir une clé JWT robuste dans `.env` (32 caractères minimum) :
+Une fois l'application déployée (voir [K8S_GUIDE.md](./K8S_GUIDE.md)), importez
+l'inventaire dans le Pod backend :
 
 ```bash
-openssl rand -hex 32
-```
+POD=$(kubectl get pod -n inventory-app -l app=backend -o jsonpath='{.items[0].metadata.name}')
+kubectl cp BD_inventory.csv inventory-app/$POD:/tmp/BD_inventory.csv
 
-Puis sécuriser le fichier :
-
-```bash
-chmod 600 .env
-chown root:root .env
-```
-
-### Étape 3 — Génération des certificats SSL
-
-```bash
-chmod +x nginx/generate_certs.sh
-./nginx/generate_certs.sh
-```
-
-Les certificats auto-signés sont créés dans `./nginx/certs/`.
-
-### Étape 4 — Lancement
-
-```bash
-docker compose up --build -d
-docker compose ps
-```
-
-### Étape 5 — Import des données existantes
-
-```bash
 # Vérification à blanc (recommandé d'abord) : valide le mapping et affiche le
 # rapport (importés / mis à jour / skippés / erreurs) sans rien écrire en base.
-docker compose exec backend python import_csv.py /path/to/BD_inventory.csv --dry-run
+kubectl exec -n inventory-app $POD -- python import_csv.py /tmp/BD_inventory.csv --dry-run
 
 # Import réel (idempotent : ré-exécutable sans dupliquer les devices existants)
-docker compose exec backend python import_csv.py /path/to/BD_inventory.csv
+kubectl exec -n inventory-app $POD -- python import_csv.py /tmp/BD_inventory.csv
 ```
 
 Le script :
@@ -141,15 +107,17 @@ du dépôt via `.gitignore` et ne doit **jamais** être committé.
 ### Sauvegarde de la base de données
 
 ```bash
-docker compose exec -T db pg_dumpall -c -U postgres > backup_stock_$(date +%Y-%m-%d).sql
+POD=$(kubectl get pod -n inventory-app -l app=postgres -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n inventory-app $POD -- pg_dumpall -c -U postgres > backup_stock_$(date +%Y-%m-%d).sql
 ```
 
 Recommandé : intégrer cette commande dans un job CRON quotidien.
 
-### Arrêt
+### Logs & état des Pods
 
 ```bash
-docker compose down
+kubectl get pods -n inventory-app
+kubectl logs -n inventory-app deploy/backend
 ```
 
 ---

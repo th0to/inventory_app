@@ -29,9 +29,9 @@ Depuis cette page vous pouvez :
 ### Alternative en ligne de commande (si l'interface est inaccessible)
 
 En cas de problème d'accès à l'interface (ex. plus aucun admin actif), vous pouvez
-créer/réparer un compte directement dans le conteneur backend :
+créer/réparer un compte directement dans le Pod backend :
 ```bash
-docker compose exec backend python -c "
+kubectl exec -n inventory-app deploy/backend -- python -c "
 from database import SessionLocal
 from models import User, UserRole
 from security import hash_password
@@ -60,23 +60,25 @@ Outre les fonctions de l'utilisateur standard, vous bénéficiez de nouveaux dro
 
 ## 3. Consultations des Logs Applicatifs
 
-En cas de comportements anormaux, d'échecs de requêtes ou de lenteurs non anticipées, vous allez devoir auditer les logs des services via le terminal du serveur.
+En cas de comportements anormaux, d'échecs de requêtes ou de lenteurs non anticipées, vous allez devoir auditer les logs des Pods via `kubectl` sur le nœud k3s.
 
 **Consulter les logs de la Base de Données (PostgreSQL) :**
 ```bash
-docker compose logs --tail=100 -f db
+kubectl logs -n inventory-app statefulset/postgres --tail=100 -f
 # Idéal pour détecter des crash ou erreurs de syntaxe (IntegrityError).
 ```
 
 **Consulter les logs API Backend (FastAPI) :**
 ```bash
-docker compose logs --tail=100 -f backend
+kubectl logs -n inventory-app deploy/backend --tail=100 -f
 # Affiche une pile de requêtes REST (200 OK, 401 Unauthorized, etc), incluant les potentiels bugs serveurs loggés.
 ```
 
-**Consulter le Reverse Proxy (Nginx) :**
+**Consulter l'Ingress (Traefik, terminaison TLS et routage) :**
 ```bash
-docker compose logs -f nginx
+kubectl logs -n kube-system -l app.kubernetes.io/name=traefik --tail=100 -f
 # Aide à diagnostiquer les blocages réseaux d'accès HTTPS internes et soucis TLS.
 ```
 *Quittez la consultation live via `CTRL + C`.*
+
+> Vue d'ensemble rapide de l'état des Pods : `kubectl get pods -n inventory-app`.
