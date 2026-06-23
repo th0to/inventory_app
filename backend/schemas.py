@@ -272,6 +272,13 @@ class StatCount(BaseModel):
     count: int
 
 
+class StatBucket(BaseModel):
+    """Regroupement par valeur textuelle (ex. génération) sans table de référence."""
+
+    label: str
+    count: int
+
+
 class StatsSummary(BaseModel):
     total_devices: int
     active_devices: int
@@ -279,3 +286,5 @@ class StatsSummary(BaseModel):
     by_category: list[StatCount]
     by_location: list[StatCount]
     by_entity: list[StatCount]
+    by_owner: list[StatCount]
+    by_generation: list[StatBucket]

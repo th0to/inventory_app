@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import DeviceTable from '../components/DeviceTable'
+import DeviceDetailDrawer from '../components/DeviceDetailDrawer'
 import FilterBar, { type InventoryFilters } from '../components/FilterBar'
 import AuthenticatedLayout from '../components/AuthenticatedLayout'
 import { useAuth } from '../context/useAuth'
@@ -25,6 +26,7 @@ export default function InventoryPage() {
   const [entities, setEntities] = useState<NamedReference[]>([])
   const [locations, setLocations] = useState<NamedReference[]>([])
   const [filters, setFilters] = useState<InventoryFilters>(DEFAULT_FILTERS)
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -79,6 +81,11 @@ export default function InventoryPage() {
 
   const isAdmin = role === 'admin'
 
+  const activeCategoryName = useMemo(() => {
+    if (!filters.categoryId) return null
+    return categories.find((c) => c.id === Number(filters.categoryId))?.name ?? null
+  }, [filters.categoryId, categories])
+
   return (
     <AuthenticatedLayout title="Inventaire">
       <section className="space-y-6">
@@ -106,10 +113,17 @@ export default function InventoryPage() {
               <span>{devices.length} appareil(s) au total</span>
             </p>
 
-            <DeviceTable devices={filteredDevices} isAdmin={isAdmin} />
+            <DeviceTable
+              devices={filteredDevices}
+              isAdmin={isAdmin}
+              activeCategoryName={activeCategoryName}
+              onRowClick={setSelectedDevice}
+            />
           </>
         ) : null}
       </section>
+
+      <DeviceDetailDrawer device={selectedDevice} onClose={() => setSelectedDevice(null)} />
     </AuthenticatedLayout>
   )
 }

@@ -12,11 +12,12 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Package, CheckCircle, Archive, Building2, ArchiveX, Info } from 'lucide-react'
+import { Package, CheckCircle, Archive, Building2, ArchiveX, Info, MapPin } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import AuthenticatedLayout from '../components/AuthenticatedLayout'
 import { useAuth } from '../context/useAuth'
 import { fetchStatsSummary, type StatCount, type StatsSummary } from '../services/statsApi'
+import { getLocationBadgeColors } from '../utils/badgeColors'
 
 const PIE_COLORS = [
   '#0096D6', // Primaire HP
@@ -114,14 +115,38 @@ export default function DashboardPage() {
           <>
             <section className="grid grid-cols-2 lg:grid-cols-5 gap-6" aria-label="Chiffres globaux">
               {statCards.map((card) => (
-                <StatCard 
-                  key={card.label} 
-                  label={card.label} 
-                  value={card.value} 
-                  icon={card.icon} 
-                  borderColorClass={card.border} 
+                <StatCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                  icon={card.icon}
+                  borderColorClass={card.border}
                 />
               ))}
+            </section>
+
+            <section aria-label="État du stock par lieu">
+              <h2 className="font-semibold text-lg text-[#1A1A1A] mb-4 flex items-center gap-2">
+                <MapPin size={20} className="text-[#0096D6]" />
+                État du stock par lieu
+              </h2>
+              {stats.by_location.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {stats.by_location.map((loc) => (
+                    <article key={loc.id} className="bg-white rounded-lg shadow-sm p-5 flex flex-col gap-2">
+                      <span className={`self-start px-2.5 py-1 rounded-full text-xs font-semibold ${getLocationBadgeColors(loc.name)}`}>
+                        {loc.name}
+                      </span>
+                      <p className="text-3xl font-bold text-[#1A1A1A]">{loc.count}</p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center text-[#555555]">
+                  <Info size={32} className="mb-2 opacity-50" />
+                  <p className="text-sm">Aucune donnée disponible</p>
+                </div>
+              )}
             </section>
 
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6" aria-label="Graphiques statistiques">
@@ -195,6 +220,52 @@ export default function DashboardPage() {
                         <Tooltip cursor={{fill: '#F4F4F4'}} />
                         <Legend />
                         <Bar dataKey="count" fill="#007A33" name="Appareils" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-[#555555]">
+                      <Info size={32} className="mb-2 opacity-50" />
+                      <p className="text-sm">Aucune donnée disponible</p>
+                    </div>
+                  )}
+                </div>
+              </article>
+
+              <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
+                <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">Par responsable</h2>
+                <div className="h-[250px] w-full flex-1">
+                  {stats.by_owner.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stats.by_owner} margin={{ top: 10, right: 15, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+                        <XAxis dataKey="name" angle={-25} textAnchor="end" interval={0} height={60} tick={{fill: '#555555', fontSize: 12}} />
+                        <YAxis allowDecimals={false} tick={{fill: '#555555', fontSize: 12}} />
+                        <Tooltip cursor={{fill: '#F4F4F4'}} />
+                        <Legend />
+                        <Bar dataKey="count" fill="#FF6B00" name="Appareils" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-[#555555]">
+                      <Info size={32} className="mb-2 opacity-50" />
+                      <p className="text-sm">Aucune donnée disponible</p>
+                    </div>
+                  )}
+                </div>
+              </article>
+
+              <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
+                <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">Par génération</h2>
+                <div className="h-[250px] w-full flex-1">
+                  {stats.by_generation.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stats.by_generation} margin={{ top: 10, right: 15, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" />
+                        <XAxis dataKey="label" angle={-25} textAnchor="end" interval={0} height={60} tick={{fill: '#555555', fontSize: 12}} />
+                        <YAxis allowDecimals={false} tick={{fill: '#555555', fontSize: 12}} />
+                        <Tooltip cursor={{fill: '#F4F4F4'}} />
+                        <Legend />
+                        <Bar dataKey="count" fill="#007AB8" name="Appareils" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   ) : (

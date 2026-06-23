@@ -7,6 +7,11 @@ export interface StatCount {
   count: number
 }
 
+export interface StatBucket {
+  label: string
+  count: number
+}
+
 export interface StatsSummary {
   total_devices: number
   active_devices: number
@@ -14,6 +19,8 @@ export interface StatsSummary {
   by_category: StatCount[]
   by_location: StatCount[]
   by_entity: StatCount[]
+  by_owner: StatCount[]
+  by_generation: StatBucket[]
 }
 
 export async function fetchStatsSummary(token: string): Promise<StatsSummary> {

@@ -39,6 +39,7 @@ export default function UsersPage() {
 
   // Édition inline
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [editEmail, setEditEmail] = useState('')
   const [editRole, setEditRole] = useState<UserRole>('user')
   const [editActive, setEditActive] = useState(true)
   const [editPassword, setEditPassword] = useState('')
@@ -107,6 +108,7 @@ export default function UsersPage() {
 
   const startEdit = (user: User) => {
     setEditingId(user.id)
+    setEditEmail(user.email)
     setEditRole(user.role)
     setEditActive(user.is_active)
     setEditPassword('')
@@ -120,8 +122,13 @@ export default function UsersPage() {
 
   const saveEdit = async (user: User) => {
     if (!token) return
+    if (!editEmail.trim()) {
+      setError('L’email ne peut pas être vide.')
+      return
+    }
     try {
       await updateUser(token, user.id, {
+        email: editEmail.trim(),
         role: editRole,
         is_active: editActive,
         ...(editPassword ? { password: editPassword } : {}),
@@ -235,7 +242,18 @@ export default function UsersPage() {
                               {user.username}
                               {isSelf && <span className="ml-2 text-xs text-[#0096D6]">(vous)</span>}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {isEditing ? (
+                                <input
+                                  type="email"
+                                  className={`${baseInputClass} min-w-[220px]`}
+                                  value={editEmail}
+                                  onChange={(e) => setEditEmail(e.target.value)}
+                                />
+                              ) : (
+                                user.email
+                              )}
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               {isEditing ? (
                                 <select className={baseInputClass} value={editRole} onChange={(e) => setEditRole(e.target.value as UserRole)}>
