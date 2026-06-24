@@ -115,7 +115,7 @@ class DeviceCreate(BaseModel):
     order_number: Optional[str] = None
     location_id: int
     owner_id: int
-    client_id: Optional[int] = None
+    client: Optional[str] = None
     is_pv: bool = False
     cpu: Optional[str] = None
     ram_gb: Optional[int] = None
@@ -133,7 +133,7 @@ class DeviceUpdate(BaseModel):
     entity_id: Optional[int] = None
     order_number: Optional[str] = None
     location_id: Optional[int] = None
-    client_id: Optional[int] = None
+    client: Optional[str] = None
     owner_id: Optional[int] = None
     is_pv: Optional[bool] = None
     cpu: Optional[str] = None
