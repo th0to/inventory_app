@@ -18,10 +18,11 @@ Le parc couvre plusieurs centaines d'appareils HP (laptops, desktops, workstatio
 
 ## Fonctionnalités
 
-- **Dashboard** — statistiques en temps réel : répartition par catégorie, entité, emplacement et responsable
-- **Inventaire** — tableau filtrable et paginé avec recherche par numéro de série ou modèle
+- **Dashboard dynamique** — outil statistique avec barre de filtres globale (entité, catégorie, lieu, responsable) qui recalcule en direct : cartes clés, jauge de disponibilité du stock, et graphiques de répartition (catégorie, entité, responsable, génération)
+- **Inventaire** — tableau filtrable avec recherche, taille de page réglable (10/20/50/tout), colonnes contextuelles selon la catégorie filtrée, et fiche détaillée au clic (panneau latéral)
 - **Ajout de device** — formulaire structuré avec champs conditionnels selon la catégorie et l'entité
-- **Gestion des accès** — deux rôles : utilisateur standard (lecture + ajout) et administrateur (modification + suppression)
+- **Édition / suppression** — les administrateurs modifient une fiche (toutes les infos d'affectation et de caractéristiques) ou la suppriment, avec confirmation
+- **Gestion des accès** — deux rôles : utilisateur standard (lecture + ajout) et administrateur (modification + suppression + gestion des comptes)
 - **Traçabilité** — historique complet de chaque modification (champ, ancienne valeur, nouvelle valeur, auteur, horodatage)
 - **Sécurité** — HTTPS en réseau local (certificat auto-signé), authentification JWT, PostgreSQL jamais exposé
 
@@ -103,6 +104,20 @@ du dépôt via `.gitignore` et ne doit **jamais** être committé.
 ---
 
 ## Maintenance & Backups
+
+### Mise à jour de l'application
+
+Le script [`update.sh`](./update.sh) (sur la VM) met à jour l'application **sans perdre les
+données** (`git pull` → build des images → import dans k3s → `rollout restart`) :
+
+```bash
+cd ~/inventory_app
+./update.sh            # backend + frontend
+./update.sh frontend   # ou une seule cible
+```
+
+Détails et procédure de maintenance (logs, reset des ID d'appareils…) : voir
+[ADMIN_GUIDE.md](./ADMIN_GUIDE.md).
 
 ### Sauvegarde de la base de données
 

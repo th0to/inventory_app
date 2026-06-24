@@ -17,8 +17,34 @@ Pour vous déconnecter en toute sécurité à la fin de vos tâches, cliquez sur
 
 L'accès à l'application est compartimenté en plusieurs vues utiles à votre navigation :
 
-- **Le Dashboard (Tableau de bord)** : Affiche les métriques clés, les statistiques globales du parc informatique ou encore la distribution matérielle par entité. C'est l'écran de synthèse idéal pour comprendre l'état des stocks.
-- **L'Inventaire** : L'onglet central. C'est ici que vous retrouvez la liste complète des équipements gérés. L'inventaire vous offre des capacités de tris et des champs de **Filtres/Recherche** afin de repérer un numéro de série exact ou retrouver la trace d'un PC (qui l'a en ce moment, où est-il, etc).
+### Le Dashboard (Tableau de bord)
+
+C'est l'écran de synthèse pour comprendre l'état du parc **en un coup d'œil**. Il est
+**dynamique** :
+
+- **Barre de filtres globale** en haut (Entité / Catégorie / Lieu / Responsable) :
+  chaque sélection recalcule **en direct** tous les chiffres et graphiques. Les options
+  « Toutes / Tous » réinitialisent un filtre.
+- **Cartes clés** : Total, **Disponibles** (en stock), **Immobilisés** (chez client, en
+  test, showroom…) et Archivés.
+- **Jauge de disponibilité** : le pourcentage d'appareils réellement disponibles, plus la
+  répartition par lieu.
+- **Graphiques de répartition** : par catégorie, par entité, par responsable et par
+  génération.
+
+### L'Inventaire
+
+L'onglet central : la liste complète des équipements. Il offre :
+
+- une barre de **Filtres / Recherche** (numéro de série, modèle, catégorie, entité, lieu)
+  pour repérer rapidement un appareil ;
+- un sélecteur du **nombre de lignes** affichées (10 / 20 / 50 / Tout) ;
+- des **colonnes contextuelles** : en filtrant sur une catégorie, le tableau ajoute les
+  champs pertinents (ex. *Laptop* → processeur / RAM / stockage ; *Display* → taille ;
+  *Docking* → puissance) ;
+- une **fiche détaillée** : un **clic sur une ligne** ouvre un panneau latéral affichant
+  **toutes** les informations de l'appareil (identité, affectation, caractéristiques,
+  commentaire, dates).
 
 ## 3. Ajout d'un nouvel appareil
 
