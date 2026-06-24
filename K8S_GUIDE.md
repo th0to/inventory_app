@@ -70,6 +70,11 @@ docker save inventory-frontend:latest | sudo k3s ctr images import -
 ```
 
 > À refaire à chaque nouvelle version d'image (puis `kubectl rollout restart deploy/backend -n inventory-app`).
+>
+> **Mise à jour courante** : une fois le déploiement initial fait, utilisez plutôt le script
+> [`update.sh`](update.sh) à la racine du dépôt — il enchaîne `git pull`, le build, l'import
+> dans k3s et le `rollout restart`, sans toucher au namespace ni aux volumes (données
+> préservées). Voir [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §4.
 
 ---
 

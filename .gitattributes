@@ -1,0 +1,4 @@
+# Les scripts shell doivent toujours avoir des fins de ligne LF, sinon le shebang
+# casse à l'exécution sur la VM Linux (erreur "bad interpreter: ... ^M").
+*.sh text eol=lf
+entrypoint.sh text eol=lf
