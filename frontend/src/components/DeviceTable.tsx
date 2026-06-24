@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Device } from '../services/devicesApi'
 import { Pencil, Trash2, Package } from 'lucide-react'
 import { getEntityBadgeColors, getLocationBadgeColors } from '../utils/badgeColors'
@@ -65,15 +65,14 @@ export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRo
   const totalPages = pageSize === null ? 1 : Math.max(1, Math.ceil(devices.length / pageSize))
 
   // Garde-fou : si le filtrage réduit le nombre de pages sous la page courante,
-  // on revient à une page valide (évite un tableau vide).
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages)
-  }, [currentPage, totalPages])
+  // on borne la page affichée pendant le rendu (évite un tableau vide) sans
+  // stocker de valeur hors limites dans le state.
+  const safePage = Math.min(currentPage, totalPages)
 
   const displayedDevices =
     pageSize === null
       ? devices
-      : devices.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+      : devices.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   const baseColCount = isAdmin ? 8 : 7
   const totalColCount = baseColCount + extraColumns.length
@@ -185,18 +184,18 @@ export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRo
           {totalPages > 1 && (
             <div className="flex gap-2">
               <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
+                disabled={safePage === 1}
                 className="px-4 py-2 border border-[#E0E0E0] rounded text-sm text-[#555555] font-medium hover:bg-[#F4F4F4] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Précédent
               </button>
               <span className="px-4 py-2 text-sm text-[#1A1A1A] font-medium self-center">
-                {currentPage} / {totalPages}
+                {safePage} / {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(Math.min(totalPages, safePage + 1))}
+                disabled={safePage === totalPages}
                 className="px-4 py-2 border border-[#E0E0E0] rounded text-sm text-[#555555] font-medium hover:bg-[#F4F4F4] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Suivant
