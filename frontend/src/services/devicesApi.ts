@@ -96,3 +96,55 @@ export async function createDevice(token: string, payload: DeviceCreatePayload):
 
   return (await response.json()) as Device
 }
+
+export async function updateDevice(
+  token: string,
+  id: number,
+  payload: DeviceCreatePayload,
+): Promise<Device> {
+  const response = await apiFetch(buildApiUrl(`/devices/${id}`), {
+    method: 'PUT',
+    headers: createJsonAuthHeaders(token),
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    if (response.status === 400) {
+      // Le backend renvoie aussi 400 « Aucun changement détecté » si rien n'a bougé.
+      const detail = await response.json().then((d) => d?.detail).catch(() => null)
+      throw new Error(typeof detail === 'string' ? detail : 'Les données du formulaire sont invalides.')
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Vous n’avez pas les droits pour modifier un appareil.')
+    }
+    if (response.status === 404) {
+      throw new Error('Appareil introuvable.')
+    }
+    if (response.status >= 500) {
+      throw new Error('Le serveur est indisponible pour la modification d’appareil.')
+    }
+    throw new Error('Impossible de modifier l’appareil.')
+  }
+
+  return (await response.json()) as Device
+}
+
+export async function deleteDevice(token: string, id: number): Promise<void> {
+  const response = await apiFetch(buildApiUrl(`/devices/${id}`), {
+    method: 'DELETE',
+    headers: createAuthHeaders(token),
+  })
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Vous n’avez pas les droits pour supprimer un appareil.')
+    }
+    if (response.status === 404) {
+      throw new Error('Appareil introuvable.')
+    }
+    if (response.status >= 500) {
+      throw new Error('Le serveur est indisponible pour la suppression d’appareil.')
+    }
+    throw new Error('Impossible de supprimer l’appareil.')
+  }
+}

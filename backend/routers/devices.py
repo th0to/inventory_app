@@ -51,6 +51,21 @@ def _create_history_entry(
     )
 
 
+def _resolve_client_id(db: Session, client_name: str | None) -> int | None:
+    """Le formulaire envoie le client en texte libre (« Client / Partenaire »).
+    On le rattache au Client existant du même nom, ou on le crée à la volée.
+    Un nom vide => pas de client (client_id = None)."""
+    name = (client_name or "").strip()
+    if not name:
+        return None
+    client = db.scalars(select(Client).where(Client.name == name)).first()
+    if client is None:
+        client = Client(name=name)
+        db.add(client)
+        db.flush()
+    return client.id
+
+
 def _assert_exists(db: Session, model, record_id: int, error_message: str) -> None:
     if db.get(model, record_id) is None:
         raise HTTPException(
@@ -119,6 +134,7 @@ def create_device(
     db: Session = Depends(get_db),
 ) -> DeviceRead:
     data = payload.model_dump()
+    data["client_id"] = _resolve_client_id(db, data.pop("client", None))
     _validate_relations(db, data, is_update=False)
 
     device = Device(**data, created_by=current_user.id, updated_by=current_user.id)
@@ -160,6 +176,10 @@ def update_device(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Aucun champ à mettre à jour",
         )
+
+    # Le client est transmis en texte : on le convertit en client_id (résolu/créé).
+    if "client" in update_data:
+        update_data["client_id"] = _resolve_client_id(db, update_data.pop("client"))
 
     _validate_relations(db, update_data, is_update=True)
 

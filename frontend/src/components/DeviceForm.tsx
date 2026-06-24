@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { DeviceCreatePayload } from '../services/devicesApi'
+import type { Device, DeviceCreatePayload } from '../services/devicesApi'
 import type { NamedReference } from '../services/referencesApi'
 
 interface DeviceFormProps {
@@ -10,6 +10,12 @@ interface DeviceFormProps {
   isSubmitting: boolean
   canSubmit: boolean
   onSubmit: (payload: DeviceCreatePayload) => Promise<void>
+  // Mode édition : valeurs initiales + libellés. Absent => mode création.
+  initialDevice?: Device
+  title?: string
+  submitLabel?: string
+  submittingLabel?: string
+  resetAfterSubmit?: boolean
 }
 
 interface DeviceFormValues {
@@ -26,6 +32,27 @@ const INITIAL_VALUES: DeviceFormValues = {
   ownerId: '', orderNumber: '', clientName: '', isPv: false, cpu: '', ramGb: '', storageGb: '', screenSize: '', powerW: '', comment: ''
 }
 
+function deviceToValues(device: Device): DeviceFormValues {
+  return {
+    serialNumber: device.serial_number,
+    modelName: device.model_name,
+    generation: device.generation ?? '',
+    categoryId: String(device.category_id),
+    entityId: String(device.entity_id),
+    locationId: String(device.location_id),
+    ownerId: String(device.owner_id),
+    orderNumber: device.order_number ?? '',
+    clientName: device.client ?? '',
+    isPv: device.is_pv,
+    cpu: device.cpu ?? '',
+    ramGb: device.ram_gb != null ? String(device.ram_gb) : '',
+    storageGb: device.storage_gb != null ? String(device.storage_gb) : '',
+    screenSize: device.screen_size ?? '',
+    powerW: device.power_w != null ? String(device.power_w) : '',
+    comment: device.comment ?? '',
+  }
+}
+
 function buildValidationErrors(values: DeviceFormValues): FormErrors {
   const errors: FormErrors = {}
   if (!values.serialNumber.trim()) errors.serialNumber = 'Le numéro de série est obligatoire.'
@@ -37,8 +64,17 @@ function buildValidationErrors(values: DeviceFormValues): FormErrors {
   return errors
 }
 
-export default function DeviceForm({ categories, entities, locations, owners, isSubmitting, canSubmit, onSubmit }: DeviceFormProps) {
-  const [values, setValues] = useState<DeviceFormValues>(INITIAL_VALUES)
+export default function DeviceForm({
+  categories, entities, locations, owners, isSubmitting, canSubmit, onSubmit,
+  initialDevice,
+  title = 'Ajouter un appareil',
+  submitLabel = 'Créer l’appareil',
+  submittingLabel = 'Création en cours...',
+  resetAfterSubmit = true,
+}: DeviceFormProps) {
+  const [values, setValues] = useState<DeviceFormValues>(
+    initialDevice ? deviceToValues(initialDevice) : INITIAL_VALUES,
+  )
   const [errors, setErrors] = useState<FormErrors>({})
 
   const isDisabled = isSubmitting || !canSubmit
@@ -91,7 +127,7 @@ export default function DeviceForm({ categories, entities, locations, owners, is
         comment: values.comment.trim() || null,
       })
 
-      setValues(INITIAL_VALUES)
+      if (resetAfterSubmit) setValues(INITIAL_VALUES)
       setErrors({})
     } catch {
       return
@@ -103,7 +139,7 @@ export default function DeviceForm({ categories, entities, locations, owners, is
 
   return (
     <form className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-8" onSubmit={handleSubmit} noValidate>
-      <h2 className="font-bold text-2xl text-[#1A1A1A] mb-8">Ajouter un appareil</h2>
+      <h2 className="font-bold text-2xl text-[#1A1A1A] mb-8">{title}</h2>
 
       {/* Section 1 — Identification */}
       <div className="mb-8">
@@ -239,9 +275,9 @@ export default function DeviceForm({ categories, entities, locations, owners, is
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Création en cours...
+              {submittingLabel}
             </span>
-          ) : 'Créer l’appareil'}
+          ) : submitLabel}
         </button>
       </div>
     </form>

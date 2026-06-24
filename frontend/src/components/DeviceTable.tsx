@@ -9,6 +9,8 @@ interface DeviceTableProps {
   // Nom de la catégorie filtrée (null si « Toutes ») : déclenche les colonnes dynamiques.
   activeCategoryName?: string | null
   onRowClick?: (device: Device) => void
+  onEdit?: (device: Device) => void
+  onDelete?: (device: Device) => void
 }
 
 // Options du sélecteur de pagination. `null` = « Tout afficher ».
@@ -57,7 +59,7 @@ function extraColumnsFor(categoryName?: string | null): ColumnDef[] {
   return CATEGORY_COLUMNS[categoryName.trim().toLowerCase()] ?? []
 }
 
-export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRowClick }: DeviceTableProps) {
+export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRowClick, onEdit, onDelete }: DeviceTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState<number | null>(10)
 
@@ -137,6 +139,7 @@ export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRo
                       <div className="flex items-center justify-end gap-2">
                         <button
                           type="button"
+                          onClick={() => onEdit?.(device)}
                           className="p-2 text-[#0096D6] hover:bg-blue-50 rounded transition-colors"
                           title="Modifier"
                         >
@@ -144,6 +147,7 @@ export default function DeviceTable({ devices, isAdmin, activeCategoryName, onRo
                         </button>
                         <button
                           type="button"
+                          onClick={() => onDelete?.(device)}
                           className="p-2 text-[#CC0000] hover:bg-red-50 rounded transition-colors"
                           title="Supprimer"
                         >
