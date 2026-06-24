@@ -7,7 +7,7 @@ Tous les manifestes sont dans le dossier [`k8s/`](k8s/). Architecture :
 
 ```
                     Ingress Traefik (443, TLS)
-                    host: stock.entreprise.local
+                    host: stock.gvaprintlab.ch
                       /                     \
               /api -> backend-service:8000   / -> frontend-service:80
                        |                              |
@@ -88,7 +88,7 @@ kubectl create secret generic inventory-secrets -n inventory-app \
   --from-literal=DB_PASSWORD="$(openssl rand -hex 16)" \
   --from-literal=JWT_SECRET_KEY="$(openssl rand -hex 32)"
 
-# 3.3 Certificat TLS auto-signé (CN=stock.entreprise.local).
+# 3.3 Certificat TLS auto-signé (CN=stock.gvaprintlab.ch).
 #     Les .pem ne sont PAS versionnés (clé privée) : régénérez-les localement après
 #     un clone frais, puis créez le Secret. Renouvellement manuel annuel.
 ./nginx/generate_certs.sh
@@ -133,8 +133,8 @@ kubectl logs -n inventory-app statefulset/postgres
 kubectl exec -n inventory-app deploy/backend -- python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/health').read())"
 ```
 
-Accès navigateur : faites pointer **`stock.entreprise.local`** vers l'IP du nœud k3s
-(DNS interne ou `/etc/hosts` des postes clients), puis ouvrez `https://stock.entreprise.local`.
+Accès navigateur : faites pointer **`stock.gvaprintlab.ch`** vers l'IP du nœud k3s
+(DNS interne ou `/etc/hosts` des postes clients), puis ouvrez `https://stock.gvaprintlab.ch`.
 Le certificat étant auto-signé, acceptez l'avertissement (ou importez le CA dans les postes).
 
 ---
@@ -187,8 +187,8 @@ kubectl create secret tls inventory-tls -n inventory-app \
   --cert=nginx/certs/cert.pem --key=nginx/certs/key.pem
 kubectl apply -k k8s/
 
-# Ajouter 127.0.0.1 stock.entreprise.local dans /etc/hosts, puis :
-curl -k https://stock.entreprise.local/api/health   # -> {"status":"ok"}
+# Ajouter 127.0.0.1 stock.gvaprintlab.ch dans /etc/hosts, puis :
+curl -k https://stock.gvaprintlab.ch/api/health   # -> {"status":"ok"}
 
 # Nettoyage
 k3d cluster delete inventory

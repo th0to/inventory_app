@@ -13,10 +13,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - stock.entreprise.local
+        - stock.gvaprintlab.ch
       secretName: inventory-tls
   rules:
-    - host: stock.entreprise.local
+    - host: stock.gvaprintlab.ch
       http:
         paths:
           - path: /api
