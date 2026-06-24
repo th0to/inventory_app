@@ -259,32 +259,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     user_id: int
     role: str
-
-
-# ---------------------------------------------------------------------------
-# Stats
-# ---------------------------------------------------------------------------
-
-
-class StatCount(BaseModel):
-    id: int
-    name: str
-    count: int
-
-
-class StatBucket(BaseModel):
-    """Regroupement par valeur textuelle (ex. génération) sans table de référence."""
-
-    label: str
-    count: int
-
-
-class StatsSummary(BaseModel):
-    total_devices: int
-    active_devices: int
-    archived_devices: int
-    by_category: list[StatCount]
-    by_location: list[StatCount]
-    by_entity: list[StatCount]
-    by_owner: list[StatCount]
-    by_generation: list[StatBucket]

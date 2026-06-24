@@ -18,3 +18,13 @@ export function getEntityBadgeColors(entity: string): string {
   if (norm.includes('fix')) return 'bg-purple-100 text-purple-800'
   return 'bg-gray-100 text-gray-800'
 }
+
+// Couleur hex (pour les graphiques Recharts) cohérente avec les badges de lieu.
+export function getLocationHexColor(location: string): string {
+  const norm = location.toLowerCase()
+  if (norm.includes('stock')) return '#007A33' // vert : disponible
+  if (norm.includes('client')) return '#0096D6' // bleu HP
+  if (norm.includes('showroom')) return '#7C3AED' // violet
+  if (norm.includes('test')) return '#FF6B00' // orange
+  return '#94A3B8' // gris-bleu : 5ème, Smart Locker…
+}
