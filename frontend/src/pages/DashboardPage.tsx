@@ -62,7 +62,7 @@ function BarCard({ title, data, color }: { title: string; data: Bucket[]; color:
   return (
     <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
       <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">{title}</h2>
-      <div className="h-[260px] w-full flex-1">
+      <div className="h-[260px] w-full">
         {data.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 10, right: 15, left: 0, bottom: 20 }}>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-6" aria-label="Disponibilité du stock">
               <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
                 <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">Disponibilité du stock</h2>
-                <div className="relative h-[260px] w-full flex-1">
+                <div className="relative h-[260px] w-full">
                   {availabilityDonut.length > 0 ? (
                     <>
                       <ResponsiveContainer width="100%" height="100%">
@@ -264,7 +264,7 @@ export default function DashboardPage() {
 
               <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
                 <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">Répartition par lieu</h2>
-                <div className="h-[260px] w-full flex-1">
+                <div className="h-[260px] w-full">
                   {byLocation.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={byLocation} margin={{ top: 10, right: 15, left: 0, bottom: 20 }}>
@@ -288,7 +288,7 @@ export default function DashboardPage() {
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-6" aria-label="Répartitions">
               <article className="bg-white rounded-lg shadow-sm p-6 flex flex-col">
                 <h2 className="font-semibold text-lg text-[#1A1A1A] mb-6">Par catégorie</h2>
-                <div className="h-[260px] w-full flex-1">
+                <div className="h-[260px] w-full">
                   {byCategory.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
