@@ -5,7 +5,7 @@ Cette application centralisée vous permet de garder une trace fiable, et en ré
 ## 1. Connexion et Déconnexion
 
 Pour utiliser la plateforme :
-1. Ouvrez votre navigateur internet et rendez-vous sur l'adresse de l'application (ex: `https://stock.entreprise.local`).
+1. Ouvrez votre navigateur internet et rendez-vous sur l'adresse de l'application (ex: `https://stock.gvaprintlab.ch`).
 2. Saisissez votre **Nom d'utilisateur** (ou email) et votre **Mot de passe** fournis préalablement par l'administrateur interne.
 3. Cliquez sur **Se connecter**.
 
